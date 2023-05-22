@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": false,
+        "amount": 30
+    },
+    "auditLog": "/home/surya/js/safebite-main-backend/dist/utils/logger/logs/error/.3241bca39b59de8ae940c1be3e9a6c09ca4481e8-audit.json",
+    "files": [
+        {
+            "date": 1684608546963,
+            "name": "/home/surya/js/safebite-main-backend/dist/utils/logger/logs/error/2023-05-21.log",
+            "hash": "cba02dbdad01c9a61febaf7a7cc4034ab43906c1ce63bcd6c8ff97afe5b9a58b"
+        }
+    ],
+    "hashType": "sha256"
+}

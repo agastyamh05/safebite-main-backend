@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SUCCESS = exports.INTERNAL_SERVER_ERRORS = exports.VALIDATION_ERRORS = exports.BUSINESS_LOGIC_ERRORS = void 0;
+const BUSINESS_LOGIC_ERRORS = "BusinessLogicErrors";
+exports.BUSINESS_LOGIC_ERRORS = BUSINESS_LOGIC_ERRORS;
+const VALIDATION_ERRORS = "ValidationErrors";
+exports.VALIDATION_ERRORS = VALIDATION_ERRORS;
+const INTERNAL_SERVER_ERRORS = "InternalServerErrors";
+exports.INTERNAL_SERVER_ERRORS = INTERNAL_SERVER_ERRORS;
+const SUCCESS = "Success";
+exports.SUCCESS = SUCCESS;

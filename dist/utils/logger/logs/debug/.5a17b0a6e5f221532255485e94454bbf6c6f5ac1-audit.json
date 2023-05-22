@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": false,
+        "amount": 30
+    },
+    "auditLog": "/home/surya/js/safebite-main-backend/dist/utils/logger/logs/debug/.5a17b0a6e5f221532255485e94454bbf6c6f5ac1-audit.json",
+    "files": [
+        {
+            "date": 1684608546961,
+            "name": "/home/surya/js/safebite-main-backend/dist/utils/logger/logs/debug/2023-05-21.log",
+            "hash": "58748da37562b10ad56207ff293d303236d10444c7071f50ad59e6be39e17eb3"
+        },
+        {
+            "date": 1684725296843,
+            "name": "/home/surya/js/safebite-main-backend/dist/utils/logger/logs/debug/2023-05-22.log",
+            "hash": "742c5beb302c60f5320dbce489dfd7675b1363a0e6ed23f133b0afb94a8ccb1f"
+        }
+    ],
+    "hashType": "sha256"
+}

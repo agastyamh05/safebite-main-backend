@@ -1,0 +1,55 @@
+2023-05-22 11:14:56 info: [0mPOST /login [32m200[0m 217.240 ms - 800[0m
+2023-05-22 11:14:57 info: [0mPOST /login [32m200[0m 83.791 ms - 800[0m
+2023-05-22 11:15:02 info: [0mPOST /login [32m200[0m 92.409 ms - 800[0m
+2023-05-22 11:15:03 info: [0mPOST /login [32m200[0m 73.742 ms - 800[0m
+2023-05-22 11:15:04 info: [0mPOST /login [32m200[0m 69.556 ms - 800[0m
+2023-05-22 12:13:28 info: 🚀 App listening at http://localhost:3000
+2023-05-22 12:13:30 info: 🚀 App listening at http://localhost:3000
+2023-05-22 12:13:37 info: 🚀 App listening at http://localhost:3000
+2023-05-22 12:13:41 error: POST /login 500 Message: 
+Invalid `prisma_1.default.users.findUnique()` invocation in
+/home/surya/js/clean-arch-repo/dist/services/users.service.js:46:57
+
+  43     return;
+  44 }
+  45 async login(data, meta) {
+→ 46     const storedUser = await prisma_1.default.users.findUnique(
+Database `safebite-main-backend` does not exist on the database server at `localhost:5432`.
+2023-05-22 12:13:41 info: [0mPOST /login [31m500[0m 385.171 ms - 369[0m
+2023-05-22 12:13:42 error: POST /login 500 Message: 
+Invalid `prisma_1.default.users.findUnique()` invocation in
+/home/surya/js/clean-arch-repo/dist/services/users.service.js:46:57
+
+  43     return;
+  44 }
+  45 async login(data, meta) {
+→ 46     const storedUser = await prisma_1.default.users.findUnique(
+Database `safebite-main-backend` does not exist on the database server at `localhost:5432`.
+2023-05-22 12:13:42 info: [0mPOST /login [31m500[0m 8.247 ms - 369[0m
+2023-05-22 12:13:43 info: 🚀 App listening at http://localhost:3000
+2023-05-22 12:14:02 error: POST /login 500 Message: 
+Invalid `prisma_1.default.users.findUnique()` invocation in
+/home/surya/js/clean-arch-repo/dist/services/users.service.js:46:57
+
+  43     return;
+  44 }
+  45 async login(data, meta) {
+→ 46     const storedUser = await prisma_1.default.users.findUnique(
+The table `public.users` does not exist in the current database.
+2023-05-22 12:14:02 info: [0mPOST /login [31m500[0m 144.279 ms - 342[0m
+2023-05-22 12:14:03 error: POST /login 500 Message: 
+Invalid `prisma_1.default.users.findUnique()` invocation in
+/home/surya/js/clean-arch-repo/dist/services/users.service.js:46:57
+
+  43     return;
+  44 }
+  45 async login(data, meta) {
+→ 46     const storedUser = await prisma_1.default.users.findUnique(
+The table `public.users` does not exist in the current database.
+2023-05-22 12:14:03 info: [0mPOST /login [31m500[0m 11.653 ms - 342[0m
+2023-05-22 12:14:15 error: POST /login 401 Message: invalid credentials
+2023-05-22 12:14:15 info: [0mPOST /login [33m401[0m 10.970 ms - 204[0m
+2023-05-22 12:14:15 error: POST /login 401 Message: invalid credentials
+2023-05-22 12:14:15 info: [0mPOST /login [33m401[0m 6.397 ms - 204[0m
+2023-05-22 12:14:18 error: POST /signup 400 Message: email, name and password field is invalid
+2023-05-22 12:14:18 info: [0mPOST /signup [33m400[0m 5.547 ms - 401[0m

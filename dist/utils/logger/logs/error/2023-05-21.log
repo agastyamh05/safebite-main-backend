@@ -1,0 +1,356 @@
+2023-05-21 12:22:49 error: [POST] /login 401 Message: BusinessLogicErrors
+2023-05-21 12:22:51 error: [POST] /login 401 Message: BusinessLogicErrors
+2023-05-21 12:22:51 error: [POST] /login 401 Message: BusinessLogicErrors
+2023-05-21 12:22:52 error: [POST] /login 401 Message: BusinessLogicErrors
+2023-05-21 12:22:53 error: [POST] /login 401 Message: BusinessLogicErrors
+2023-05-21 12:23:02 error: [POST] /login 401 Message: BusinessLogicErrors
+2023-05-21 12:23:03 error: [POST] /login 401 Message: BusinessLogicErrors
+2023-05-21 12:23:06 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 12:23:07 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 12:23:13 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 12:24:11 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 12:24:12 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 12:24:13 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 12:24:13 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 12:24:14 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 12:24:14 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 12:24:15 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 12:24:15 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 12:24:16 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 12:24:16 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 12:24:17 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 12:24:17 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 12:24:32 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 12:24:35 error: POST /signup 409 Message: BusinessLogicErrors
+2023-05-21 22:22:04 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 22:25:33 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 22:28:36 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 22:28:41 error: POST /login 401 Message: BusinessLogicErrors
+2023-05-21 22:29:32 error: uncaughtException: Unexpected token '||'
+/home/surya/js/safebite-main-backend/dist/utils/exceptions/httpException.js:10
+ || undefined;
+ ^^
+
+SyntaxError: Unexpected token '||'
+    at internalCompileFunction (node:internal/vm:73:18)
+    at wrapSafe (node:internal/modules/cjs/loader:1176:20)
+    at Module._compile (node:internal/modules/cjs/loader:1218:27)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1308:10)
+    at Module.load (node:internal/modules/cjs/loader:1117:32)
+    at Module._load (node:internal/modules/cjs/loader:958:12)
+    at Module.require (node:internal/modules/cjs/loader:1141:19)
+    at require (node:internal/modules/cjs/helpers:110:18)
+    at Object.<anonymous> (/home/surya/js/safebite-main-backend/dist/services/users.service.js:14:25)
+    at Module._compile (node:internal/modules/cjs/loader:1254:14)
+2023-05-21 22:29:34 error: uncaughtException: Unexpected token '||'
+/home/surya/js/safebite-main-backend/dist/utils/exceptions/httpException.js:10
+ || undefined;
+ ^^
+
+SyntaxError: Unexpected token '||'
+    at internalCompileFunction (node:internal/vm:73:18)
+    at wrapSafe (node:internal/modules/cjs/loader:1176:20)
+    at Module._compile (node:internal/modules/cjs/loader:1218:27)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1308:10)
+    at Module.load (node:internal/modules/cjs/loader:1117:32)
+    at Module._load (node:internal/modules/cjs/loader:958:12)
+    at Module.require (node:internal/modules/cjs/loader:1141:19)
+    at require (node:internal/modules/cjs/helpers:110:18)
+    at Object.<anonymous> (/home/surya/js/safebite-main-backend/dist/services/users.service.js:14:25)
+    at Module._compile (node:internal/modules/cjs/loader:1254:14)
+2023-05-21 22:31:27 error: POST /login 401 Message: Something went wrong
+2023-05-21 22:31:28 error: POST /login 401 Message: Something went wrong
+2023-05-21 22:31:29 error: POST /login 401 Message: Something went wrong
+2023-05-21 22:31:29 error: POST /login 401 Message: Something went wrong
+2023-05-21 22:31:30 error: POST /login 401 Message: Something went wrong
+2023-05-21 22:31:30 error: POST /login 401 Message: Something went wrong
+2023-05-21 22:31:30 error: POST /login 401 Message: Something went wrong
+2023-05-21 22:31:31 error: POST /login 401 Message: Something went wrong
+2023-05-21 22:32:35 error: POST /login 401 Message: Something went wrong
+2023-05-21 22:32:43 error: POST /login 401 Message: invalid credentials
+2023-05-21 22:32:53 error: POST /login 401 Message: invalid credentials
+2023-05-21 22:32:56 error: POST /login 401 Message: invalid credentials
+2023-05-21 22:32:57 error: POST /login 401 Message: invalid credentials
+2023-05-21 22:33:00 error: POST /signup 409 Message: user already exists
+2023-05-21 22:33:05 error: POST /login 401 Message: invalid credentials
+2023-05-21 22:33:07 error: POST /signup 409 Message: user already exists
+2023-05-21 22:33:20 error: POST /signup 409 Message: user already exists
+2023-05-21 22:33:50 error: POST /login 401 Message: invalid credentials
+2023-05-21 23:06:44 error: POST /login 401 Message: invalid credentials
+2023-05-21 23:14:55 error: uncaughtException: Missing initializer in const declaration
+/home/surya/js/safebite-main-backend/dist/utils/middlewares/validation.middleware.js:32
+            const fields;
+                  ^^^^^^
+
+SyntaxError: Missing initializer in const declaration
+    at internalCompileFunction (node:internal/vm:73:18)
+    at wrapSafe (node:internal/modules/cjs/loader:1176:20)
+    at Module._compile (node:internal/modules/cjs/loader:1218:27)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1308:10)
+    at Module.load (node:internal/modules/cjs/loader:1117:32)
+    at Module._load (node:internal/modules/cjs/loader:958:12)
+    at Module.require (node:internal/modules/cjs/loader:1141:19)
+    at require (node:internal/modules/cjs/helpers:110:18)
+    at Object.<anonymous> (/home/surya/js/safebite-main-backend/dist/routes/users.route.js:7:33)
+    at Module._compile (node:internal/modules/cjs/loader:1254:14)
+2023-05-21 23:15:15 error: uncaughtException: Missing initializer in const declaration
+/home/surya/js/safebite-main-backend/dist/utils/middlewares/validation.middleware.js:32
+            const fields;
+                  ^^^^^^
+
+SyntaxError: Missing initializer in const declaration
+    at internalCompileFunction (node:internal/vm:73:18)
+    at wrapSafe (node:internal/modules/cjs/loader:1176:20)
+    at Module._compile (node:internal/modules/cjs/loader:1218:27)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1308:10)
+    at Module.load (node:internal/modules/cjs/loader:1117:32)
+    at Module._load (node:internal/modules/cjs/loader:958:12)
+    at Module.require (node:internal/modules/cjs/loader:1141:19)
+    at require (node:internal/modules/cjs/helpers:110:18)
+    at Object.<anonymous> (/home/surya/js/safebite-main-backend/dist/routes/users.route.js:7:33)
+    at Module._compile (node:internal/modules/cjs/loader:1254:14)
+2023-05-21 23:15:30 error: uncaughtException: Missing initializer in const declaration
+/home/surya/js/safebite-main-backend/dist/utils/middlewares/validation.middleware.js:32
+            const fields;
+                  ^^^^^^
+
+SyntaxError: Missing initializer in const declaration
+    at internalCompileFunction (node:internal/vm:73:18)
+    at wrapSafe (node:internal/modules/cjs/loader:1176:20)
+    at Module._compile (node:internal/modules/cjs/loader:1218:27)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1308:10)
+    at Module.load (node:internal/modules/cjs/loader:1117:32)
+    at Module._load (node:internal/modules/cjs/loader:958:12)
+    at Module.require (node:internal/modules/cjs/loader:1141:19)
+    at require (node:internal/modules/cjs/helpers:110:18)
+    at Object.<anonymous> (/home/surya/js/safebite-main-backend/dist/routes/users.route.js:7:33)
+    at Module._compile (node:internal/modules/cjs/loader:1254:14)
+2023-05-21 23:16:01 error: uncaughtException: Missing initializer in const declaration
+/home/surya/js/safebite-main-backend/dist/utils/middlewares/validation.middleware.js:32
+            const fields;
+                  ^^^^^^
+
+SyntaxError: Missing initializer in const declaration
+    at internalCompileFunction (node:internal/vm:73:18)
+    at wrapSafe (node:internal/modules/cjs/loader:1176:20)
+    at Module._compile (node:internal/modules/cjs/loader:1218:27)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1308:10)
+    at Module.load (node:internal/modules/cjs/loader:1117:32)
+    at Module._load (node:internal/modules/cjs/loader:958:12)
+    at Module.require (node:internal/modules/cjs/loader:1141:19)
+    at require (node:internal/modules/cjs/helpers:110:18)
+    at Object.<anonymous> (/home/surya/js/safebite-main-backend/dist/routes/users.route.js:7:33)
+    at Module._compile (node:internal/modules/cjs/loader:1254:14)
+2023-05-21 23:16:32 error: uncaughtException: Missing initializer in const declaration
+/home/surya/js/safebite-main-backend/dist/utils/middlewares/validation.middleware.js:32
+            const fields;
+                  ^^^^^^
+
+SyntaxError: Missing initializer in const declaration
+    at internalCompileFunction (node:internal/vm:73:18)
+    at wrapSafe (node:internal/modules/cjs/loader:1176:20)
+    at Module._compile (node:internal/modules/cjs/loader:1218:27)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1308:10)
+    at Module.load (node:internal/modules/cjs/loader:1117:32)
+    at Module._load (node:internal/modules/cjs/loader:958:12)
+    at Module.require (node:internal/modules/cjs/loader:1141:19)
+    at require (node:internal/modules/cjs/helpers:110:18)
+    at Object.<anonymous> (/home/surya/js/safebite-main-backend/dist/routes/users.route.js:7:33)
+    at Module._compile (node:internal/modules/cjs/loader:1254:14)
+2023-05-21 23:16:51 error: uncaughtException: Missing initializer in const declaration
+/home/surya/js/safebite-main-backend/dist/utils/middlewares/validation.middleware.js:32
+            const fields;
+                  ^^^^^^
+
+SyntaxError: Missing initializer in const declaration
+    at internalCompileFunction (node:internal/vm:73:18)
+    at wrapSafe (node:internal/modules/cjs/loader:1176:20)
+    at Module._compile (node:internal/modules/cjs/loader:1218:27)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1308:10)
+    at Module.load (node:internal/modules/cjs/loader:1117:32)
+    at Module._load (node:internal/modules/cjs/loader:958:12)
+    at Module.require (node:internal/modules/cjs/loader:1141:19)
+    at require (node:internal/modules/cjs/helpers:110:18)
+    at Object.<anonymous> (/home/surya/js/safebite-main-backend/dist/routes/users.route.js:7:33)
+    at Module._compile (node:internal/modules/cjs/loader:1254:14)
+2023-05-21 23:17:19 error: POST /login 401 Message: invalid credentials
+2023-05-21 23:17:26 error: POST /login 400 Message: email field validation error
+2023-05-21 23:17:35 error: POST /login 400 Message: email field validation error
+2023-05-21 23:17:39 error: POST /login 400 Message: email, password field validation error
+2023-05-21 23:18:22 error: POST /login 400 Message: email, password field validation error
+2023-05-21 23:18:41 error: POST /login 400 Message: email, password field is invalid
+2023-05-21 23:19:40 error: POST /login 400 Message: email and password field is invalid
+2023-05-21 23:19:42 error: POST /login 400 Message: email and password field is invalid
+2023-05-21 23:19:45 error: POST /login 400 Message: email and password field is invalid
+2023-05-21 23:19:45 error: POST /login 400 Message: email and password field is invalid
+2023-05-21 23:19:45 error: POST /login 400 Message: email and password field is invalid
+2023-05-21 23:19:48 error: POST /login 400 Message: email field is invalid
+2023-05-21 23:19:51 error: POST /login 400 Message: email field is invalid
+2023-05-21 23:19:52 error: POST /login 400 Message: email field is invalid
+2023-05-21 23:23:04 error: POST /signup 409 Message: user already exists
+2023-05-21 23:23:07 error: POST /signup 400 Message: password field is invalid
+2023-05-21 23:23:12 error: POST /signup 400 Message: email and password field is invalid
+2023-05-21 23:23:19 error: POST /signup 400 Message: email, name and password field is invalid
+2023-05-21 23:41:18 error: POST /signup 400 Message: email, name and password field is invalid
+2023-05-21 23:41:19 error: POST /signup 400 Message: email, name and password field is invalid
+2023-05-21 23:41:19 error: POST /signup 400 Message: email, name and password field is invalid
+2023-05-21 23:41:20 error: POST /signup 400 Message: email, name and password field is invalid
+2023-05-21 23:41:24 error: POST /login 400 Message: email field is invalid
+2023-05-21 23:41:26 error: POST /login 400 Message: email field is invalid
+2023-05-21 23:41:30 error: POST /login 500 Message: 
+Invalid `prisma_1.default.sessions.create()` invocation in
+/home/surya/js/safebite-main-backend/dist/services/users.service.js:86:41
+
+  83 const accessTokenExpiresAt = Date.now() + (0, parse_duration_1.default)(config_1.ACCESS_TOKEN_EXPIRES_IN);
+  84 const refreshTokenExpiresAt = Date.now() + (0, parse_duration_1.default)(config_1.REFRESH_TOKEN_EXPIRES_IN);
+  85 // create session
+→ 86 await prisma_1.default.sessions.create({
+       data: {
+         userId: 009af1b6-f27d-4376-8750-a814dabd12c6,
+         ~~~~~~
+         deviceId: '893545f7-5f8b-476c-9e58-7384fbbec59c',
+     +   deviceName: String,
+         ip: '::1',
+         key: 'ee671135-564f-4cdc-972a-21fc339dd762',
+         expiresAt: new Date('2023-05-28T15:41:30.648Z'),
+     +   user: {
+     +     create?: usersCreateWithoutSessionsInput | usersUncheckedCreateWithoutSessionsInput,
+     +     connectOrCreate?: usersCreateOrConnectWithoutSessionsInput,
+     +     connect?: usersWhereUniqueInput
+     +   },
+     ?   isActive?: Boolean,
+     ?   createdAt?: DateTime,
+     ?   lastUsed?: DateTime
+       }
+     })
+
+Unknown arg `userId` in data.userId for type sessionsCreateInput. Did you mean `user`?
+Argument deviceName for data.deviceName is missing.
+Argument user for data.user is missing.
+
+Note: Lines with + are required, lines with ? are optional.
+
+2023-05-21 23:41:33 error: POST /login 500 Message: 
+Invalid `prisma_1.default.sessions.create()` invocation in
+/home/surya/js/safebite-main-backend/dist/services/users.service.js:86:41
+
+  83 const accessTokenExpiresAt = Date.now() + (0, parse_duration_1.default)(config_1.ACCESS_TOKEN_EXPIRES_IN);
+  84 const refreshTokenExpiresAt = Date.now() + (0, parse_duration_1.default)(config_1.REFRESH_TOKEN_EXPIRES_IN);
+  85 // create session
+→ 86 await prisma_1.default.sessions.create({
+       data: {
+         userId: 009af1b6-f27d-4376-8750-a814dabd12c6,
+         ~~~~~~
+         deviceId: 'ba043475-10c0-40ef-8036-6019095576e1',
+     +   deviceName: String,
+         ip: '::1',
+         key: '2068d15d-3b04-4532-9771-eb8747f2faa7',
+         expiresAt: new Date('2023-05-28T15:41:33.349Z'),
+     +   user: {
+     +     create?: usersCreateWithoutSessionsInput | usersUncheckedCreateWithoutSessionsInput,
+     +     connectOrCreate?: usersCreateOrConnectWithoutSessionsInput,
+     +     connect?: usersWhereUniqueInput
+     +   },
+     ?   isActive?: Boolean,
+     ?   createdAt?: DateTime,
+     ?   lastUsed?: DateTime
+       }
+     })
+
+Unknown arg `userId` in data.userId for type sessionsCreateInput. Did you mean `user`?
+Argument deviceName for data.deviceName is missing.
+Argument user for data.user is missing.
+
+Note: Lines with + are required, lines with ? are optional.
+
+2023-05-21 23:41:34 error: POST /login 500 Message: 
+Invalid `prisma_1.default.sessions.create()` invocation in
+/home/surya/js/safebite-main-backend/dist/services/users.service.js:86:41
+
+  83 const accessTokenExpiresAt = Date.now() + (0, parse_duration_1.default)(config_1.ACCESS_TOKEN_EXPIRES_IN);
+  84 const refreshTokenExpiresAt = Date.now() + (0, parse_duration_1.default)(config_1.REFRESH_TOKEN_EXPIRES_IN);
+  85 // create session
+→ 86 await prisma_1.default.sessions.create({
+       data: {
+         userId: 009af1b6-f27d-4376-8750-a814dabd12c6,
+         ~~~~~~
+         deviceId: '66ac2019-aada-412f-9204-56ad97b448e3',
+     +   deviceName: String,
+         ip: '::1',
+         key: '6542efc3-66f6-466a-aa90-33af87051388',
+         expiresAt: new Date('2023-05-28T15:41:34.407Z'),
+     +   user: {
+     +     create?: usersCreateWithoutSessionsInput | usersUncheckedCreateWithoutSessionsInput,
+     +     connectOrCreate?: usersCreateOrConnectWithoutSessionsInput,
+     +     connect?: usersWhereUniqueInput
+     +   },
+     ?   isActive?: Boolean,
+     ?   createdAt?: DateTime,
+     ?   lastUsed?: DateTime
+       }
+     })
+
+Unknown arg `userId` in data.userId for type sessionsCreateInput. Did you mean `user`?
+Argument deviceName for data.deviceName is missing.
+Argument user for data.user is missing.
+
+Note: Lines with + are required, lines with ? are optional.
+
+2023-05-21 23:43:33 error: POST /login 500 Message: 
+Invalid `prisma_1.default.sessions.create()` invocation in
+/home/surya/js/safebite-main-backend/dist/services/users.service.js:86:41
+
+  83 const accessTokenExpiresAt = Date.now() + (0, parse_duration_1.default)(config_1.ACCESS_TOKEN_EXPIRES_IN);
+  84 const refreshTokenExpiresAt = Date.now() + (0, parse_duration_1.default)(config_1.REFRESH_TOKEN_EXPIRES_IN);
+  85 // create session
+→ 86 await prisma_1.default.sessions.create({
+       data: {
+         user: {
+           connect: {
+             id: '009af1b6-f27d-4376-8750-a814dabd12c6'
+           }
+         },
+         deviceId: '685c8185-6b67-44fd-8d7d-3f294d13fe7c',
+     +   deviceName: String,
+         ip: '::1',
+         key: '4959654b-2de1-43d7-b041-e133ec98ba5d',
+         expiresAt: new Date('2023-05-28T15:43:33.495Z'),
+     ?   isActive?: Boolean,
+     ?   createdAt?: DateTime,
+     ?   lastUsed?: DateTime
+       }
+     })
+
+Argument deviceName for data.deviceName is missing.
+
+Note: Lines with + are required, lines with ? are optional.
+
+2023-05-21 23:44:10 error: POST /login 500 Message: 
+Invalid `prisma_1.default.sessions.create()` invocation in
+/home/surya/js/safebite-main-backend/dist/services/users.service.js:86:41
+
+  83 const accessTokenExpiresAt = Date.now() + (0, parse_duration_1.default)(config_1.ACCESS_TOKEN_EXPIRES_IN);
+  84 const refreshTokenExpiresAt = Date.now() + (0, parse_duration_1.default)(config_1.REFRESH_TOKEN_EXPIRES_IN);
+  85 // create session
+→ 86 await prisma_1.default.sessions.create({
+       data: {
+         user: {
+           connect: {
+             id: '009af1b6-f27d-4376-8750-a814dabd12c6'
+           }
+         },
+         deviceId: '53183eca-cb5e-462e-b10a-0d32b56192e4',
+     +   deviceName: String,
+         ip: '::1',
+         key: '07f1d41d-5439-4db0-8dba-0b3de1f5185b',
+         expiresAt: new Date('2023-05-28T15:44:10.479Z'),
+     ?   isActive?: Boolean,
+     ?   createdAt?: DateTime,
+     ?   lastUsed?: DateTime
+       }
+     })
+
+Argument deviceName for data.deviceName is missing.
+
+Note: Lines with + are required, lines with ? are optional.
+

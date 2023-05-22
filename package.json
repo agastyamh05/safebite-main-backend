@@ -7,7 +7,7 @@
         "build": "npm run prisma:generate && tsc --build --verbose tsconfig.build.json && tsc-alias -p tsconfig.json",
         "start": "node dist/server.js",
         "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/server.js\"",
-        "prisma:migrate": "dotenv -e .env.development -- prisma migrate dev --preview-feature",
+        "prisma:migrate": "dotenv -e .env.development.local -- prisma migrate dev --preview-feature",
         "prisma:generate": "prisma generate"
     },
     "prisma": {

@@ -51,7 +51,9 @@ npm install
 
 2. Create a `.env.development.local` file in the root directory, use `.env.example` as a template
 
-3. Start the development server
+3. If you run this for the first time, migrate prisma schema with `npm run prisma:migrate` 
+
+4. Start the development server
 
 ```bash
 npm run dev

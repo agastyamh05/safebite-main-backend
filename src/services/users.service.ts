@@ -16,7 +16,9 @@ import jwt from "jsonwebtoken";
 
 @Service()
 export class UsersService {
-	public async signup(data: SignUpRequest): Promise<void> {
+	public async signup(data: SignUpRequest): Promise<{
+        uuid: string;
+    }> {
 		const storedUser = await prisma.users.findUnique({
 			where: { email: data.email },
 		});
@@ -35,7 +37,7 @@ export class UsersService {
 		}
 
 		const hashedPassword = await hash(data.password, 10);
-		await prisma.users.create({
+		const createdUser = await prisma.users.create({
 			data: {
 				email: data.email,
 				password: hashedPassword,
@@ -43,7 +45,9 @@ export class UsersService {
 			},
 		});
 
-		return;
+		return {
+            uuid: createdUser.id,
+        };
 	}
 
 	public async login(

@@ -8,8 +8,8 @@ export class UserController {
 
     public signup = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            await this.userService.signup(req.body);
-            res.status(201).json({ statusCode: SUCCESS, message: 'user created' });
+            const createdUserResponse = await this.userService.signup(req.body);
+            res.status(201).json({ statusCode: SUCCESS, message: 'user created', data: createdUserResponse });
         } catch (error) {
             next(error);
         }

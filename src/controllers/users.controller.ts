@@ -27,4 +27,17 @@ export class UserController {
             next(error);
         }
     }
+
+    public refreshToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            const tokenResponse = await this.userService.refreshTokens(req.body,{
+                deviceId: req.headers['x-device-id'] as string,
+                deviceName: req.headers['x-device'] as string,
+                ip : req.ip
+            });
+            res.status(200).json({ statusCode: SUCCESS, message: 'token refreshed', data: tokenResponse });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

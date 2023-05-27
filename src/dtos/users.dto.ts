@@ -4,7 +4,7 @@ import {
 	IsNotEmpty,
 	MinLength,
 	MaxLength,
-    IsIP,
+	IsIP,
 } from "class-validator";
 
 export class SignUpRequest {
@@ -34,13 +34,19 @@ export class LogInRequest {
 }
 
 export class DeviceMeta {
-    @IsString()
-    public deviceName: string;
+	@IsString()
+	public deviceName: string;
 
-    @IsString()
-    public deviceId: string;
+	@IsString()
+	public deviceId: string;
 
-    @IsIP()
-    @IsNotEmpty()
-    public ip: string;
+	@IsIP()
+	@IsNotEmpty()
+	public ip: string;
+}
+
+export class RefreshTokenRequest {
+	@IsString()
+	@IsNotEmpty()
+	public refreshToken: string;
 }

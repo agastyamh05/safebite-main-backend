@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { UserController } from "../controllers/users.controller";
-import { LogInRequest, SignUpRequest } from "../dtos/users.dto";
+import { LogInRequest, SignUpRequest,RefreshTokenRequest } from "../dtos/users.dto";
 import { Routes } from "../utils/interfaces/routers.interface";
 import { ValidationMiddleware } from "../utils/middlewares/validation.middleware";
 
@@ -24,5 +24,10 @@ export class UsersRoute implements Routes {
 			ValidationMiddleware(LogInRequest),
 			this.userController.login
 		);
+        this.router.post(
+            `${this.path}/refresh`,
+            ValidationMiddleware(RefreshTokenRequest),
+            this.userController.refreshToken
+        );
 	}
 }

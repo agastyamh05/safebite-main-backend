@@ -10,15 +10,40 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+enum role {
+    user
+    admin
+}
+
+enum registerMethod {
+    local
+    google
+}
+
 model users {
-    id        String     @id @default(uuid())
-    email     String     @unique
-    name      String
+    id        String                  @id @default(uuid())
+    email     String                  @unique
     password  String
-    createdAt DateTime   @default(now())
-    updatedAt DateTime   @updatedAt
-    deletedAt DateTime?
+    method    registerMethod          @default(local)
+    role      role                    @default(user)
     sessions  sessions[]
+    profile   usersProfile[]
+    alergens  ingredients[]
+    bookmarks userFoodBookmarkAssoc[]
+    createdAt DateTime                @default(now())
+    updatedAt DateTime                @updatedAt
+    deletedAt DateTime?
+}
+
+model usersProfile {
+    id        Int       @id @default(autoincrement())
+    user      users     @relation(fields: [userId], references: [id])
+    userId    String
+    name      String?
+    avatar    String?
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
 }
 
 model sessions {
@@ -33,4 +58,40 @@ model sessions {
     createdAt  DateTime @default(now())
     lastUsed   DateTime @default(now())
     expiresAt  DateTime
+}
+
+model ingredients {
+    id            Int       @id @default(autoincrement())
+    name          String    @unique
+    icon          String?
+    isMainAlergen Boolean   @default(false)
+    foods         foods[]
+    allergicUsers users[]
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
+    deletedAt     DateTime?
+}
+
+model foods {
+    id                    Int                     @id @default(autoincrement())
+    externalId            String?
+    name                  String                  @unique
+    picture               String
+    description           String?
+    ingredients           ingredients[]
+    userFoodBookmarkAssoc userFoodBookmarkAssoc[]
+    createdAt             DateTime                @default(now())
+    updatedAt             DateTime                @updatedAt
+    deletedAt             DateTime?
+}
+
+model userFoodBookmarkAssoc {
+    user         users     @relation(fields: [userId], references: [id])
+    userId       String
+    food         foods     @relation(fields: [foodId], references: [id])
+    foodId       Int
+    bookmarkedAt DateTime  @default(now())
+    deletedAt    DateTime?
+
+    @@id([userId, foodId])
 }

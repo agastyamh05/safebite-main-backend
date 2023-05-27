@@ -3,19 +3,12 @@ import {
 	IsString,
 	IsNotEmpty,
 	MinLength,
-	MaxLength,
 	IsIP,
 } from "class-validator";
 
 export class SignUpRequest {
 	@IsEmail()
 	public email: string;
-
-	@IsString()
-	@IsNotEmpty()
-	@MinLength(3)
-	@MaxLength(20)
-	public name: string;
 
 	@IsString()
 	@IsNotEmpty()

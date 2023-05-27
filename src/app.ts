@@ -18,12 +18,14 @@ export class App {
 	public app: express.Application;
 	public env: string;
 	public port: string | number;
+    public prefix: string;
 
-	constructor(routes: Routes[]) {
+	constructor(prefix: string, routes: Routes[]) {
 		this.app = express();
 		this.env = NODE_ENV || "development";
 		this.port = PORT || 3000;
-
+        this.prefix = prefix; 
+        
 		this.initializeMiddlewares();
 		this.initializeRoutes(routes);
 		this.initializeErrorHandling();
@@ -45,7 +47,7 @@ export class App {
 
 	private initializeRoutes(routes: Routes[]) {
 		routes.forEach((route) => {
-			this.app.use("/", route.router);
+            this.app.use(this.prefix, route.router);
 		});
 	}
 

@@ -19,6 +19,7 @@ import prisma from "../utils/driver/prisma";
 import parse from "parse-duration";
 import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { Prisma, users } from "@prisma/client";
+import { AccessTokenPayload, RefreshTokenPayload } from "../dtos/token.dto";
 
 @Service()
 export class UsersService {
@@ -61,8 +62,9 @@ export class UsersService {
 	}
 
 	private async generateTokens(
-		userId: string,
-		sessionKey: string
+		user: users,
+		sessionKey: string,
+		isFresh: boolean
 	): Promise<{
 		uuid: string;
 		access: {
@@ -81,10 +83,11 @@ export class UsersService {
 
 		const accessToken = jwt.sign(
 			{
-				uid: userId,
+				uid: user.id,
 				sid: sessionKey,
+				role: user.role,
 				category: "access",
-				isFresh: true,
+				isFresh: isFresh,
 				exp: accessTokenExpiresAt,
 			},
 			ACCESS_TOKEN_SECRET
@@ -92,7 +95,7 @@ export class UsersService {
 
 		const refreshToken = jwt.sign(
 			{
-				uid: userId,
+				uid: user.id,
 				sid: sessionKey,
 				category: "refresh",
 				exp: refreshTokenExpiresAt,
@@ -101,7 +104,7 @@ export class UsersService {
 		);
 
 		return {
-			uuid: userId,
+			uuid: user.id,
 			access: {
 				token: accessToken,
 				expiredAt: accessTokenExpiresAt,
@@ -200,7 +203,7 @@ export class UsersService {
 			},
 		});
 
-		return await this.generateTokens(storedUser.id, key);
+		return await this.generateTokens(storedUser, key, true);
 	}
 
 	public async refreshTokens(
@@ -217,20 +220,13 @@ export class UsersService {
 			expiredAt: number;
 		};
 	}> {
-		let decoded: {
-			uid: string;
-			sid: string;
-			category: string;
-			exp: number;
-		};
-        
+		let decoded: RefreshTokenPayload;
+
 		try {
-			decoded = jwt.verify(data.refreshToken, REFRESH_TOKEN_SECRET) as {
-				uid: string;
-				sid: string;
-				category: string;
-				exp: number;
-			};
+			decoded = jwt.verify(
+				data.refreshToken,
+				REFRESH_TOKEN_SECRET
+			) as RefreshTokenPayload;
 		} catch (e) {
 			if (e instanceof JsonWebTokenError) {
 				throw new HttpException(
@@ -267,6 +263,9 @@ export class UsersService {
 			where: {
 				key: decoded.sid,
 			},
+			include: {
+				user: true,
+			},
 		});
 
 		if (!storedSession || !storedSession.isActive) {
@@ -278,20 +277,6 @@ export class UsersService {
 					{
 						field: "refreshToken",
 						message: ["session does not exist"],
-					},
-				]
-			);
-		}
-
-		if (storedSession.userId !== decoded.uid) {
-			throw new HttpException(
-				401,
-				BUSINESS_LOGIC_ERRORS,
-				"invalid token",
-				[
-					{
-						field: "refreshToken",
-						message: ["session does not belong to user"],
 					},
 				]
 			);
@@ -313,9 +298,55 @@ export class UsersService {
 				expiresAt: new Date(
 					Date.now() + parse(REFRESH_TOKEN_EXPIRES_IN)
 				),
+				lastUsed: new Date(Date.now()),
 			},
 		});
 
-		return await this.generateTokens(decoded.uid, key);
+		return await this.generateTokens(storedSession.user, key, false);
+	}
+
+	public async validateAccessToken(token: AccessTokenPayload): Promise<{
+		uid: string;
+		role: string;
+		isFresh: boolean;
+	}> {
+		const storedSession = await prisma.sessions.findUnique({
+			where: {
+				key: token.sid,
+			},
+		});
+
+		if (!storedSession || !storedSession.isActive) {
+			throw new HttpException(
+				401,
+				BUSINESS_LOGIC_ERRORS,
+				"invalid token",
+				[
+					{
+						field: "authorization",
+						message: ["session does not exist"],
+					},
+				]
+			);
+		}
+
+		return {
+			uid: token.uid,
+			role: token.role,
+			isFresh: token.isFresh,
+		};
+	}
+
+	public async logout(token: AccessTokenPayload): Promise<void> {
+		await prisma.sessions.update({
+			where: {
+				key: token.sid,
+			},
+			data: {
+				isActive: false,
+			},
+		});
+
+		return;
 	}
 }

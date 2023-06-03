@@ -8,7 +8,9 @@
         "start": "node dist/server.js",
         "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/server.js\"",
         "prisma:migrate": "dotenv -e .env.development.local -- prisma migrate dev --preview-feature",
-        "prisma:generate": "prisma generate"
+        "prisma:generate": "prisma generate",
+        "prisma:format": "prisma format",
+        "prisma:studio": "prisma studio"
     },
     "prisma": {
         "schema": "src/prisma/schema.prisma"

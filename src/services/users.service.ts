@@ -349,4 +349,68 @@ export class UsersService {
 
 		return;
 	}
+
+	public async getUserInfo(uid: string): Promise<{
+		id: string;
+		email: string;
+		role: string;
+		alergens: {
+            id: number;
+            name: string ;
+            icon: string | null;
+            isMainAlergen: boolean;
+        }[] | null;
+		createdAt: Date;
+		updatedAt: Date;
+	}> {
+		const storedUser = await prisma.users.findUnique({
+			where: {
+				id: uid,
+			},
+			select: {
+				id: true,
+				email: true,
+				role: true,
+				profile: {
+					select: {
+						name: true,
+						avatar: true,
+					},
+				},
+                alergens: {
+                    select: {
+                        id: true,
+                        name: true,
+                        icon: true,
+                        isMainAlergen: true,
+                    }
+                },
+				createdAt: true,
+				updatedAt: true,
+			},
+		});
+
+		if (!storedUser) {
+			throw new HttpException(
+				404,
+				BUSINESS_LOGIC_ERRORS,
+				"user not found",
+				[
+					{
+						field: "uid",
+						message: ["user does not exist"],
+					},
+				]
+			);
+		}
+
+		return {
+			id: storedUser.id,
+			email: storedUser.email,
+			role: storedUser.role,
+            alergens: storedUser.alergens,
+			createdAt: storedUser.createdAt,
+			updatedAt: storedUser.updatedAt,
+		};
+	}
 }

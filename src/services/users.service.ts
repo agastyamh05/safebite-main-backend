@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { v4 as uuidv4 } from "uuid";
 import {
 	DeviceMeta,
@@ -34,6 +35,14 @@ export class UsersService {
 				data: {
 					email: data.email,
 					password: hashedPassword,
+					profile: {
+						create: {
+							name: data.name,
+						},
+					},
+				},
+				include: {
+					profile: true,
 				},
 			});
 		} catch (e) {
@@ -354,12 +363,16 @@ export class UsersService {
 		id: string;
 		email: string;
 		role: string;
-		alergens: {
-            id: number;
-            name: string ;
-            icon: string | null;
-            isMainAlergen: boolean;
-        }[] | null;
+		alergens:
+			| {
+					id: number;
+					name: string;
+					icon: string | null;
+					isMainAlergen: boolean;
+			  }[]
+			| null;
+        name: string | null;
+        avatar: string | null;
 		createdAt: Date;
 		updatedAt: Date;
 	}> {
@@ -367,26 +380,9 @@ export class UsersService {
 			where: {
 				id: uid,
 			},
-			select: {
-				id: true,
-				email: true,
-				role: true,
-				profile: {
-					select: {
-						name: true,
-						avatar: true,
-					},
-				},
-                alergens: {
-                    select: {
-                        id: true,
-                        name: true,
-                        icon: true,
-                        isMainAlergen: true,
-                    }
-                },
-				createdAt: true,
-				updatedAt: true,
+			include: {
+				alergens: true,
+				profile: true,
 			},
 		});
 
@@ -408,7 +404,9 @@ export class UsersService {
 			id: storedUser.id,
 			email: storedUser.email,
 			role: storedUser.role,
-            alergens: storedUser.alergens,
+			alergens: storedUser.alergens,
+            name: storedUser.profile?.name || null,
+            avatar: storedUser.profile?.avatar || null,
 			createdAt: storedUser.createdAt,
 			updatedAt: storedUser.updatedAt,
 		};

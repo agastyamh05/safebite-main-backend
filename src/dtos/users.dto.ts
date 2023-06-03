@@ -14,6 +14,10 @@ export class SignUpRequest {
 	@IsNotEmpty()
 	@MinLength(8)
 	public password: string;
+
+    @IsString()
+    @IsNotEmpty()
+    public name: string;
 }
 
 export class LogInRequest {

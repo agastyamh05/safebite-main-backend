@@ -47,3 +47,7 @@ export class RefreshTokenRequest {
 	@IsNotEmpty()
 	public refreshToken: string;
 }
+
+export class GetUserInfoRequest {
+    public id: string;
+}

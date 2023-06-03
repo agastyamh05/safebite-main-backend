@@ -5,6 +5,7 @@ import {
 	LogInRequest,
 	SignUpRequest,
 	RefreshTokenRequest,
+    GetUserInfoRequest,
 } from "../dtos/users.dto";
 import { ErrorValue, HttpException } from "../utils/exceptions/httpException";
 import { hash, compare } from "bcrypt";
@@ -359,7 +360,7 @@ export class UsersService {
 		return;
 	}
 
-	public async getUserInfo(uid: string): Promise<{
+	public async getUserInfo(data: GetUserInfoRequest): Promise<{
 		id: string;
 		email: string;
 		role: string;
@@ -371,14 +372,14 @@ export class UsersService {
 					isMainAlergen: boolean;
 			  }[]
 			| null;
-        name: string | null;
-        avatar: string | null;
+		name: string | null;
+		avatar: string | null;
 		createdAt: Date;
 		updatedAt: Date;
 	}> {
 		const storedUser = await prisma.users.findUnique({
 			where: {
-				id: uid,
+				id: data.id,
 			},
 			include: {
 				alergens: true,
@@ -405,8 +406,8 @@ export class UsersService {
 			email: storedUser.email,
 			role: storedUser.role,
 			alergens: storedUser.alergens,
-            name: storedUser.profile?.name || null,
-            avatar: storedUser.profile?.avatar || null,
+			name: storedUser.profile?.name || null,
+			avatar: storedUser.profile?.avatar || null,
 			createdAt: storedUser.createdAt,
 			updatedAt: storedUser.updatedAt,
 		};

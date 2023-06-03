@@ -83,4 +83,23 @@ export class UserController {
 			next(error);
 		}
 	};
+
+	public getUserInfo = async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			const user = await this.userService.getUserInfo({
+                id: res.locals.user.uid as string,
+            });
+			res.status(200).json({
+				statusCode: SUCCESS,
+				message: "success retrieve user",
+				data: user,
+			});
+		} catch (error) {
+            next(error);
+        }
+	};
 }

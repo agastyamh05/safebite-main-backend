@@ -10,7 +10,7 @@ import { ValidationMiddleware } from "../utils/middlewares/validation.middleware
 import { AuthMiddleware } from "../utils/middlewares/auth.middleware";
 
 export class UsersRoute implements Routes {
-	public path = "/auth";
+	public path = "/users";
 	public router = Router();
 	public userController = new UserController();
 
@@ -39,6 +39,10 @@ export class UsersRoute implements Routes {
 			AuthMiddleware, 
 			this.userController.logout
 		);
-        
+        this.router.get(
+            `${this.path}/`,
+            AuthMiddleware,
+            this.userController.getUserInfo
+        );
 	}
 }

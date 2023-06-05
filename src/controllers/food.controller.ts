@@ -14,6 +14,7 @@ export class FoodController {
         try{
             const storedFood = await this.foodService.getFood({
                 id: +req.params.id,
+                userId: res.locals.user ? res.locals.user.uid : null,
             })
             res.status(201).json({
                 statusCode: SUCCESS,

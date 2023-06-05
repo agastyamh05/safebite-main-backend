@@ -26,7 +26,7 @@ model users {
     password  String
     method    registerMethod          @default(local)
     role      role                    @default(user)
-    profile   Profiles                @relation(fields: [profileId], references: [id])
+    profile   profiles                @relation(fields: [profileId], references: [id])
     profileId Int                     @unique
     sessions  sessions[]
     alergens  ingredients[]
@@ -36,7 +36,7 @@ model users {
     deletedAt DateTime?
 }
 
-model Profiles {
+model profiles {
     id        Int       @id @default(autoincrement())
     user      users?
     name      String?

@@ -36,12 +36,12 @@ export class UsersRoute implements Routes {
 		);
 		this.router.post(
 			`${this.path}/logout`,
-			AuthMiddleware, 
+			AuthMiddleware([],true), 
 			this.userController.logout
 		);
         this.router.get(
             `${this.path}/`,
-            AuthMiddleware,
+            AuthMiddleware([],true),
             this.userController.getUserInfo
         );
 	}

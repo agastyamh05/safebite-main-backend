@@ -6,7 +6,7 @@
     "scripts": {
         "build": "npm run prisma:generate && tsc --build --verbose tsconfig.build.json && tsc-alias -p tsconfig.json",
         "start": "node dist/server.js",
-        "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/server.js\"",
+        "dev": "concurrently \"npx tsc --watch\" \"nodemon dist/server.js\"",
         "prisma:migrate": "dotenv -e .env.development.local -- prisma migrate dev --preview-feature",
         "prisma:generate": "prisma generate",
         "prisma:format": "prisma format",
@@ -56,6 +56,6 @@
         "eslint-plugin-promise": "^6.1.1",
         "nodemon": "^2.0.22",
         "prisma": "^4.14.1",
-        "typescript": "^5.0.4"
+        "typescript": "^5.1.3"
     }
 }

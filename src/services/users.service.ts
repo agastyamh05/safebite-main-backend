@@ -5,7 +5,7 @@ import {
 	LogInRequest,
 	SignUpRequest,
 	RefreshTokenRequest,
-    GetUserInfoRequest,
+	GetUserInfoRequest,
 } from "../dtos/users.dto";
 import { ErrorValue, HttpException } from "../utils/exceptions/httpException";
 import { hash, compare } from "bcrypt";
@@ -364,14 +364,12 @@ export class UsersService {
 		id: string;
 		email: string;
 		role: string;
-		alergens:
-			| {
-					id: number;
-					name: string;
-					icon: string | null;
-					isMainAlergen: boolean;
-			  }[]
-			| null;
+		alergens: {
+			id: number;
+			name: string;
+			icon: string | null;
+			isMainAlergen: boolean;
+		}[];
 		name: string | null;
 		avatar: string | null;
 		createdAt: Date;
@@ -406,8 +404,8 @@ export class UsersService {
 			email: storedUser.email,
 			role: storedUser.role,
 			alergens: storedUser.alergens,
-			name: storedUser.profile?.name || null,
-			avatar: storedUser.profile?.avatar || null,
+			name: storedUser.profile?.name,
+			avatar: storedUser.profile?.avatar,
 			createdAt: storedUser.createdAt,
 			updatedAt: storedUser.updatedAt,
 		};

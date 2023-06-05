@@ -22,6 +22,7 @@ export const ErrorMiddleware = (
 				message,
 				errors: error.errors,
 			});
+            return;
 		}
 
         res.status(500).json({

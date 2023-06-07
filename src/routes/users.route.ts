@@ -42,7 +42,7 @@ export class UsersRoute implements Routes {
         this.router.get(
             `${this.path}/`,
             AuthMiddleware([],true),
-            this.userController.getUserInfo
+            this.userController.getUserDetail
         );
 	}
 }

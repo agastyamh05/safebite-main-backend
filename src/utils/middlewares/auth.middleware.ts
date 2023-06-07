@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { Container } from "typedi";
 import { UsersService } from "../../services/users.service";
-import { AccessTokenPayload } from "../../dtos/token.dto";
+import { AccessTokenPayload } from "../../dtos/token.response.dto";
 import { ACCESS_TOKEN_SECRET } from "../config/config";
 import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { HttpException } from "../exceptions/httpException";

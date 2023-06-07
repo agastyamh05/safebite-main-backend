@@ -3,47 +3,13 @@
 import { Service } from "typedi";
 import { BUSINESS_LOGIC_ERRORS } from "../utils/const/const";
 import prisma from "../utils/driver/prisma";
-import { GetFoodRequest } from "../dtos/food.dto";
+import { GetFoodRequest } from "../dtos/food.request.dto";
 import { HttpException } from "../utils/exceptions/httpException";
-import { ingredients } from "@prisma/client";
-
-class Ingredients {
-    public id: number;
-	public name: string;
-	public icon: string | null;
-	public isMainAlergen: boolean;
-	public userAlergic: number;
-	public createdAt: Date;
-	public updatedAt: Date;
-    
-	constructor(
-		Ingredients: ingredients & {
-			_count: {
-				allergicUsers: number;
-			};
-		}
-	) {
-		this.id = Ingredients.id;
-		this.name = Ingredients.name;
-		this.icon = Ingredients.icon;
-		this.isMainAlergen = Ingredients.isMainAlergen;
-		this.userAlergic = Ingredients._count.allergicUsers;
-		this.createdAt = Ingredients.createdAt;
-		this.updatedAt = Ingredients.updatedAt;
-	}
-}
+import { FoodResponse, IngredientsResponse } from "../dtos/food.response.dto";
 
 @Service()
 export class FoodService {
-	public async getFood(data: GetFoodRequest): Promise<{
-		id: number;
-		name: string;
-		picture: string;
-		externalId: string | null;
-		description: string | null;
-		alergic: Ingredients[];
-		ingredients: Ingredients[];
-	}> {
+	public async getFood(data: GetFoodRequest): Promise<FoodResponse> {
 		const storedFood = await prisma.foods.findUnique({
 			where: {
 				id: data.id,
@@ -75,10 +41,10 @@ export class FoodService {
 		}
 
 		const storedIngredients = storedFood.ingredients.map((ingredient) => {
-			return new Ingredients(ingredient);
+			return new IngredientsResponse(ingredient);
 		});
 
-		let alergic: Ingredients[] = [];
+		let alergic: IngredientsResponse[] = [];
 
 		if (data.userId) {
 			const alergens = await prisma.users.findMany({
@@ -105,14 +71,6 @@ export class FoodService {
 			}
 		}
 
-		return {
-			id: storedFood.id,
-			name: storedFood.name,
-			picture: storedFood.picture,
-			externalId: storedFood.externalId,
-			description: storedFood.description,
-			alergic: alergic,
-			ingredients: storedIngredients,
-		};
+		return new FoodResponse(storedFood, storedIngredients, alergic);
 	}
 }

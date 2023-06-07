@@ -5,8 +5,8 @@ import {
 	LogInRequest,
 	SignUpRequest,
 	RefreshTokenRequest,
-	GetUserInfoRequest,
-} from "../dtos/users.dto";
+	GetUserInfoRequest as GetUserDetailRequest,
+} from "../dtos/user.request.dto";
 import { ErrorValue, HttpException } from "../utils/exceptions/httpException";
 import { hash, compare } from "bcrypt";
 import { Service } from "typedi";
@@ -21,13 +21,19 @@ import prisma from "../utils/driver/prisma";
 import parse from "parse-duration";
 import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { Prisma, users } from "@prisma/client";
-import { AccessTokenPayload, RefreshTokenPayload } from "../dtos/token.dto";
+import {
+	AccessTokenPayload,
+	RefreshTokenPayload,
+} from "../dtos/token.response.dto";
+import {
+	GenerateTokenResponse,
+	SignUpResponse,
+    UserDetailResponse,
+} from "../dtos/user.response.dto";
 
 @Service()
 export class UsersService {
-	public async signup(data: SignUpRequest): Promise<{
-		uuid: string;
-	}> {
+	public async signup(data: SignUpRequest): Promise<SignUpResponse> {
 		const hashedPassword = await hash(data.password, 10);
 		let createdUser: users;
 
@@ -66,26 +72,14 @@ export class UsersService {
 			throw e;
 		}
 
-		return {
-			uuid: createdUser.id,
-		};
+		return new SignUpResponse(createdUser);
 	}
 
 	private async generateTokens(
 		user: users,
 		sessionKey: string,
 		isFresh: boolean
-	): Promise<{
-		uuid: string;
-		access: {
-			token: string;
-			expiredAt: number;
-		};
-		refresh: {
-			token: string;
-			expiredAt: number;
-		};
-	}> {
+	): Promise<GenerateTokenResponse> {
 		const accessTokenExpiresAt =
 			Date.now() + parse(ACCESS_TOKEN_EXPIRES_IN);
 		const refreshTokenExpiresAt =
@@ -113,33 +107,23 @@ export class UsersService {
 			REFRESH_TOKEN_SECRET
 		);
 
-		return {
-			uuid: user.id,
-			access: {
+		return new GenerateTokenResponse(
+			user.id,
+			{
 				token: accessToken,
 				expiredAt: accessTokenExpiresAt,
 			},
-			refresh: {
+			{
 				token: refreshToken,
 				expiredAt: refreshTokenExpiresAt,
-			},
-		};
+			}
+		);
 	}
 
 	public async login(
 		data: LogInRequest,
 		meta: DeviceMeta
-	): Promise<{
-		uuid: string;
-		access: {
-			token: string;
-			expiredAt: number;
-		};
-		refresh: {
-			token: string;
-			expiredAt: number;
-		};
-	}> {
+	): Promise<GenerateTokenResponse> {
 		const storedUser = await prisma.users.findUnique({
 			where: { email: data.email },
 		});
@@ -219,17 +203,7 @@ export class UsersService {
 	public async refreshTokens(
 		data: RefreshTokenRequest,
 		meta: DeviceMeta
-	): Promise<{
-		uuid: string;
-		access: {
-			token: string;
-			expiredAt: number;
-		};
-		refresh: {
-			token: string;
-			expiredAt: number;
-		};
-	}> {
+	): Promise<GenerateTokenResponse> {
 		let decoded: RefreshTokenPayload;
 
 		try {
@@ -360,21 +334,7 @@ export class UsersService {
 		return;
 	}
 
-	public async getUserInfo(data: GetUserInfoRequest): Promise<{
-		id: string;
-		email: string;
-		role: string;
-		alergens: {
-			id: number;
-			name: string;
-			icon: string | null;
-			isMainAlergen: boolean;
-		}[];
-		name: string | null;
-		avatar: string | null;
-		createdAt: Date;
-		updatedAt: Date;
-	}> {
+	public async getUserDetail(data: GetUserDetailRequest): Promise<UserDetailResponse> {
 		const storedUser = await prisma.users.findUnique({
 			where: {
 				id: data.id,
@@ -399,15 +359,6 @@ export class UsersService {
 			);
 		}
 
-		return {
-			id: storedUser.id,
-			email: storedUser.email,
-			role: storedUser.role,
-			alergens: storedUser.alergens,
-			name: storedUser.profile?.name,
-			avatar: storedUser.profile?.avatar,
-			createdAt: storedUser.createdAt,
-			updatedAt: storedUser.updatedAt,
-		};
+		return new UserDetailResponse(storedUser);
 	}
 }

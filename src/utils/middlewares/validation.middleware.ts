@@ -3,8 +3,8 @@ import { plainToInstance } from "class-transformer";
 import { validateOrReject, ValidationError } from "class-validator";
 import { NextFunction, Request, Response } from "express";
 import { ErrorValue, HttpException } from "../exceptions/httpException";
-import "../const/const";
-import { VALIDATION_ERRORS } from "../const/const";
+import "../const/errorCodes";
+import { VALIDATION_ERRORS } from "../const/errorCodes";
 
 /**
  * @name ValidationMiddleware

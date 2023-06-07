@@ -8,7 +8,7 @@ export class SignUpResponse {
 	}
 }
 
-export class GenerateTokenResponse {
+export class TokenPayload {
 	public uuid: string;
 	public access: {
 		token: string;

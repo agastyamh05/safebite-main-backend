@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { Container } from "typedi";
 import { UsersService } from "../services/users.service";
-import { SUCCESS } from "../utils/const/const";
+import { SUCCESS } from "../utils/const/errorCodes";
 
 export class UserController {
 	private userService: UsersService = Container.get(UsersService);
@@ -22,6 +22,25 @@ export class UserController {
 			next(error);
 		}
 	};
+
+    public activateAccount = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<void> => {
+        try{
+            await this.userService.activateAccount({
+                ...req.body,
+                purpose: "activation",
+            });
+            res.status(200).json({
+                statusCode: SUCCESS,
+                message: "account activated",
+            });
+        }catch(error) {
+            next(error);
+        }
+    };
 
 	public login = async (
 		req: Request,

@@ -4,6 +4,7 @@ import {
 	LogInRequest,
 	SignUpRequest,
 	RefreshTokenRequest,
+    ActivateAccountRequest,
 } from "../dtos/user.request.dto";
 import { Routes } from "../utils/interfaces/routers.interface";
 import { ValidationMiddleware } from "../utils/middlewares/validation.middleware";
@@ -24,6 +25,11 @@ export class UsersRoute implements Routes {
 			ValidationMiddleware(SignUpRequest),
 			this.userController.signup
 		);
+        this.router.post(
+            `${this.path}/activate`,
+            ValidationMiddleware(ActivateAccountRequest),
+            this.userController.activateAccount
+        );
 		this.router.post(
 			`${this.path}/login`,
 			ValidationMiddleware(LogInRequest),

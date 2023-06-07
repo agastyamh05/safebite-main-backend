@@ -23,6 +23,8 @@ const EMAIL_SECURE = process.env.EMAIL_SECURE === "true";
 const EMAIL_USER = process.env.EMAIL_USER || "";
 const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
 
+const OTP_EXPIRES_IN = process.env.OTP_EXPIRES_IN || "15m";
+
 export {
 	NODE_ENV,
 	CREDENTIALS,
@@ -39,4 +41,5 @@ export {
 	EMAIL_SECURE,
 	EMAIL_USER,
 	EMAIL_PASSWORD,
+    OTP_EXPIRES_IN,
 };

@@ -36,6 +36,14 @@ export class TokenPayload {
 	}
 }
 
+export class VerifyResetPasswordOTPResponse {
+    public token: string;
+
+    constructor(token: string) {
+        this.token = token;
+    }
+}
+
 export class UserDetailResponse {
 	public id: string;
 	public email: string;

@@ -23,24 +23,40 @@ export class UserController {
 		}
 	};
 
-    public activateAccount = async (
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ): Promise<void> => {
-        try{
-            await this.userService.activateAccount({
-                ...req.body,
-                purpose: "activation",
-            });
-            res.status(200).json({
-                statusCode: SUCCESS,
-                message: "account activated",
-            });
-        }catch(error) {
-            next(error);
-        }
-    };
+	public sendActivationOTP = async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			await this.userService.sendActivationOTP({
+				...req.body,
+				purpose: "activation",
+			});
+			res.status(200).json({
+				statusCode: SUCCESS,
+				message: "otp sent",
+			});
+		} catch (error) {
+			next(error);
+		}
+	};
+
+	public activateAccount = async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			await this.userService.verifyActivationOTP(req.body);
+			res.status(200).json({
+				statusCode: SUCCESS,
+				message: "account activated",
+			});
+		} catch (error) {
+			next(error);
+		}
+	};
 
 	public login = async (
 		req: Request,
@@ -57,6 +73,60 @@ export class UserController {
 				statusCode: SUCCESS,
 				message: "user logged in",
 				data: tokenResponse,
+			});
+		} catch (error) {
+			next(error);
+		}
+	};
+
+	public sendResetPasswordOTP = async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			await this.userService.sendPasswordResetOTP({
+				...req.body,
+				purpose: "passwordReset",
+			});
+			res.status(200).json({
+				statusCode: SUCCESS,
+				message: "otp sent",
+			});
+		} catch (error) {
+			next(error);
+		}
+	};
+
+	public getResetPasswordToken = async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			const tokenResponse = await this.userService.verifyResetPasswordOTP(
+				req.body
+			);
+			res.status(200).json({
+				statusCode: SUCCESS,
+				message: "otp verified",
+				data: tokenResponse,
+			});
+		} catch (error) {
+			next(error);
+		}
+	};
+
+	public resetPassword = async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			await this.userService.resetPassword(req.body);
+			res.status(200).json({
+				statusCode: SUCCESS,
+				message: "success resetting password",
 			});
 		} catch (error) {
 			next(error);
@@ -110,15 +180,15 @@ export class UserController {
 	): Promise<void> => {
 		try {
 			const user = await this.userService.getUserDetail({
-                id: res.locals.user.uid as string,
-            });
+				id: res.locals.user.uid as string,
+			});
 			res.status(200).json({
 				statusCode: SUCCESS,
 				message: "success retrieve user",
 				data: user,
 			});
 		} catch (error) {
-            next(error);
-        }
+			next(error);
+		}
 	};
 }

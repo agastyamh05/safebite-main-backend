@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { Container } from "typedi";
-import { SUCCESS } from "../utils/const/const";
+import { SUCCESS } from "../utils/const/errorCodes";
 import { FoodService } from "../services/food.service";
 
 export class FoodController {

@@ -4,6 +4,8 @@ import {
 	IsNotEmpty,
 	MinLength,
 	IsIP,
+    IsNumber,
+    Length,
 } from "class-validator";
 
 export class SignUpRequest {
@@ -18,6 +20,18 @@ export class SignUpRequest {
     @IsString()
     @IsNotEmpty()
     public name: string;
+}
+
+export class ActivateAccountRequest {
+    @IsNumber()
+    @IsNotEmpty()
+    public code: number;
+
+    @IsString()
+    @IsNotEmpty()
+    public email: string;
+
+    public purpose: string;
 }
 
 export class LogInRequest {

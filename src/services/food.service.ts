@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 
 import { Service } from "typedi";
-import { BUSINESS_LOGIC_ERRORS } from "../utils/const/const";
+import { BUSINESS_LOGIC_ERRORS } from "../utils/const/errorCodes";
 import prisma from "../utils/driver/prisma";
 import { GetFoodRequest } from "../dtos/food.request.dto";
 import { HttpException } from "../utils/exceptions/httpException";

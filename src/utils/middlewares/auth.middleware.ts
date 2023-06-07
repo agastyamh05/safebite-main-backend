@@ -5,7 +5,7 @@ import { AccessTokenPayload } from "../../dtos/token.response.dto";
 import { ACCESS_TOKEN_SECRET } from "../config/config";
 import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { HttpException } from "../exceptions/httpException";
-import { BUSINESS_LOGIC_ERRORS } from "../const/const";
+import { BUSINESS_LOGIC_ERRORS } from "../const/errorCodes";
 
 const getAuthorizationToken = (req: Request): string | null => {
 	const authorizationHeader = req.headers.authorization;

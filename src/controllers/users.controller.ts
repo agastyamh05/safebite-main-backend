@@ -84,7 +84,7 @@ export class UserController {
 		}
 	};
 
-	public getUserInfo = async (
+	public getUserDetail = async (
 		req: Request,
 		res: Response,
 		next: NextFunction

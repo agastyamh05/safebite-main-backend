@@ -90,7 +90,7 @@ export class UserController {
 		next: NextFunction
 	): Promise<void> => {
 		try {
-			const user = await this.userService.getUserInfo({
+			const user = await this.userService.getUserDetail({
                 id: res.locals.user.uid as string,
             });
 			res.status(200).json({

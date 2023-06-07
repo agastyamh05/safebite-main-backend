@@ -4,7 +4,7 @@ import {
 	LogInRequest,
 	SignUpRequest,
 	RefreshTokenRequest,
-} from "../dtos/users.dto";
+} from "../dtos/user.request.dto";
 import { Routes } from "../utils/interfaces/routers.interface";
 import { ValidationMiddleware } from "../utils/middlewares/validation.middleware";
 import { AuthMiddleware } from "../utils/middlewares/auth.middleware";

@@ -60,4 +60,30 @@ export class FoodService {
             ingredients: storedFood.ingredients,
         };
     }
+    public async createFood (data: GetFoodRequest): Promise <{
+        id: number;
+    }>{
+        const storedFood = await prisma.foods.findUnique({
+            where: {
+                id: data.id,
+            },
+            include: { ingredients: true }
+        });
+        if (!storedFood) {
+            throw new HttpException(
+                404,
+                BUSINESS_LOGIC_ERRORS,
+                "can not create food",
+                [
+                    {
+                        field: "id",
+                        message: ["food does not exist"]
+                    }
+                ]
+            )
+        }
+        return{
+            id: storedFood.id,
+        }
+    }
 }

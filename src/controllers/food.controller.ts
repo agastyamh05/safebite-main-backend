@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { Container } from "typedi";
-import { SUCCESS } from "../utils/const/const";
+import { SUCCESS } from "../utils/const/errorCodes";
 import { FoodService } from "../services/food.service";
 
 export class FoodController {
@@ -14,6 +14,7 @@ export class FoodController {
         try{
             const storedFood = await this.foodService.getFood({
                 id: +req.params.id,
+                userId: res.locals.user ? res.locals.user.uid : null,
             })
             res.status(201).json({
                 statusCode: SUCCESS,

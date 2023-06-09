@@ -15,18 +15,18 @@ enum role {
     admin
 }
 
-enum registerMethod {
-    local
-    google
+enum purpose {
+    activation
+    passwordReset
 }
 
 model users {
     id        String                  @id @default(uuid())
     email     String                  @unique
     password  String
-    method    registerMethod          @default(local)
     role      role                    @default(user)
-    profile   Profiles                @relation(fields: [profileId], references: [id])
+    isActive  Boolean                 @default(false)
+    profile   profiles                @relation(fields: [profileId], references: [id])
     profileId Int                     @unique
     sessions  sessions[]
     alergens  ingredients[]
@@ -34,9 +34,11 @@ model users {
     createdAt DateTime                @default(now())
     updatedAt DateTime                @updatedAt
     deletedAt DateTime?
+    codes     codes[]
+    reset     resetTokens[]
 }
 
-model Profiles {
+model profiles {
     id        Int       @id @default(autoincrement())
     user      users?
     name      String?
@@ -46,6 +48,25 @@ model Profiles {
     deletedAt DateTime?
 
     @@map("userProfiles")
+}
+
+model codes {
+    id        Int       @id @default(autoincrement())
+    code      Int       @unique
+    type      purpose   @default(activation)
+    userId    String
+    user      users     @relation(fields: [userId], references: [id])
+    createdAt DateTime  @default(now())
+    usedAt    DateTime?
+}
+
+model resetTokens {
+    id        Int       @id @default(autoincrement())
+    token     String    @unique
+    userId    String
+    user      users     @relation(fields: [userId], references: [id])
+    createdAt DateTime  @default(now())
+    usedAt    DateTime?
 }
 
 model sessions {

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { HttpException } from "../exceptions/httpException";
 import { logger } from "../logger/logger";
-import { INTERNAL_SERVER_ERRORS } from "../const/const";
+import { INTERNAL_SERVER_ERRORS } from "../const/errorCodes";
 
 export const ErrorMiddleware = (
 	error: Error,
@@ -22,6 +22,7 @@ export const ErrorMiddleware = (
 				message,
 				errors: error.errors,
 			});
+            return;
 		}
 
         res.status(500).json({

@@ -4,6 +4,7 @@ import {
 	IsNotEmpty,
 	MinLength,
 	IsIP,
+    IsNumber
 } from "class-validator";
 
 export class SignUpRequest {
@@ -20,6 +21,23 @@ export class SignUpRequest {
     public name: string;
 }
 
+export class SendOtpRequest {
+    @IsEmail()
+    public email: string;
+
+    public purpose: string;
+}
+
+export class VerifyOTPRequest {
+    @IsNumber()
+    @IsNotEmpty()
+    public code: number;
+
+    @IsString()
+    @IsNotEmpty()
+    public email: string;
+}
+
 export class LogInRequest {
 	@IsEmail()
 	public email: string;
@@ -28,6 +46,20 @@ export class LogInRequest {
 	@IsNotEmpty()
 	@MinLength(8)
 	public password: string;
+}
+
+export class PasswordResetRequest {
+    @IsString()
+    @IsNotEmpty()
+    public password: string;
+
+    @IsString()
+    @IsNotEmpty()
+    public email: string;
+
+    @IsString()
+    @IsNotEmpty()
+    public token: string;
 }
 
 export class DeviceMeta {

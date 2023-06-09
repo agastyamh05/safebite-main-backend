@@ -5,29 +5,45 @@ import {
 	LogInRequest,
 	SignUpRequest,
 	RefreshTokenRequest,
-    GetUserInfoRequest,
-} from "../dtos/users.dto";
+	GetUserInfoRequest as GetUserDetailRequest,
+	VerifyOTPRequest,
+	SendOtpRequest,
+	PasswordResetRequest,
+} from "../dtos/user.request.dto";
 import { ErrorValue, HttpException } from "../utils/exceptions/httpException";
 import { hash, compare } from "bcrypt";
 import { Service } from "typedi";
-import { BUSINESS_LOGIC_ERRORS } from "../utils/const/const";
+import { BUSINESS_LOGIC_ERRORS } from "../utils/const/errorCodes";
 import {
 	ACCESS_TOKEN_SECRET,
 	ACCESS_TOKEN_EXPIRES_IN,
 	REFRESH_TOKEN_SECRET,
 	REFRESH_TOKEN_EXPIRES_IN,
+	OTP_EXPIRES_IN,
 } from "../utils/config/config";
 import prisma from "../utils/driver/prisma";
 import parse from "parse-duration";
 import jwt, { JsonWebTokenError } from "jsonwebtoken";
-import { Prisma, users } from "@prisma/client";
-import { AccessTokenPayload, RefreshTokenPayload } from "../dtos/token.dto";
+import { Prisma, users, codes } from "@prisma/client";
+import {
+	AccessTokenPayload,
+	RefreshTokenPayload,
+} from "../dtos/token.response.dto";
+import {
+	TokenPayload,
+	SignUpResponse,
+	UserDetailResponse,
+	VerifyResetPasswordOTPResponse,
+} from "../dtos/user.response.dto";
+import { logger } from "../utils/logger/logger";
+import { Container } from "typedi";
+import { EmailDriver } from "../utils/driver/email";
 
 @Service()
 export class UsersService {
-	public async signup(data: SignUpRequest): Promise<{
-		uuid: string;
-	}> {
+	private readonly email: EmailDriver = Container.get(EmailDriver);
+
+	public async signup(data: SignUpRequest): Promise<SignUpResponse> {
 		const hashedPassword = await hash(data.password, 10);
 		let createdUser: users;
 
@@ -46,9 +62,12 @@ export class UsersService {
 					profile: true,
 				},
 			});
+
+			return new SignUpResponse(createdUser);
 		} catch (e) {
 			if (e instanceof Prisma.PrismaClientKnownRequestError) {
 				if (e.code === "P2002") {
+					logger.error(e);
 					throw new HttpException(
 						409,
 						BUSINESS_LOGIC_ERRORS,
@@ -65,27 +84,440 @@ export class UsersService {
 
 			throw e;
 		}
+	}
 
-		return {
-			uuid: createdUser.id,
-		};
+	public async sendActivationOTP(data: SendOtpRequest): Promise<void> {
+		try {
+			const user = await prisma.users.findUnique({
+				where: {
+					email: data.email,
+				},
+			});
+
+			if (!user) {
+				throw new HttpException(
+					404,
+					BUSINESS_LOGIC_ERRORS,
+					"user not found",
+					[
+						{
+							field: "email",
+							message: ["user with email {email} not found"],
+						},
+					]
+				);
+			}
+
+			if (user.isActive) {
+				throw new HttpException(
+					400,
+					BUSINESS_LOGIC_ERRORS,
+					"user already activated",
+					[
+						{
+							field: "email",
+							message: [
+								"user with email {email} already activated",
+							],
+						},
+					]
+				);
+			}
+
+			this.sendOtp(data);
+		} catch (e) {
+			logger.error(e);
+			if (e instanceof HttpException) {
+				throw e;
+			}
+
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"error sending otp"
+			);
+		}
+	}
+
+	public async sendPasswordResetOTP(data: SendOtpRequest): Promise<void> {
+		try {
+			const user = await prisma.users.findUnique({
+				where: {
+					email: data.email,
+				},
+			});
+
+			if (!user) {
+				throw new HttpException(
+					404,
+					BUSINESS_LOGIC_ERRORS,
+					"user not found",
+					[
+						{
+							field: "email",
+							message: [
+								`user with email ${data.email} not found`,
+							],
+						},
+					]
+				);
+			}
+
+			if (!user.isActive) {
+				throw new HttpException(
+					400,
+					BUSINESS_LOGIC_ERRORS,
+					"user not activated",
+					[
+						{
+							field: "email",
+							message: [
+								`user with email ${data.email} not activated`,
+							],
+						},
+					]
+				);
+			}
+
+			this.sendOtp(data);
+		} catch (e) {
+			logger.error(e);
+			if (e instanceof HttpException) {
+				throw e;
+			}
+
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"error sending otp"
+			);
+		}
+	}
+
+	private async sendOtp(data: SendOtpRequest): Promise<void> {
+		const user = await prisma.users.findUnique({
+			where: {
+				email: data.email,
+			},
+			include: {
+				profile: true,
+			},
+		});
+
+		if (!user) {
+			throw new HttpException(
+				404,
+				BUSINESS_LOGIC_ERRORS,
+				"user not found",
+				[
+					{
+						field: "email",
+						message: ["user not found"],
+					},
+				]
+			);
+		}
+
+		if (data.purpose != "activation" && data.purpose != "passwordReset") {
+			throw new HttpException(
+				400,
+				BUSINESS_LOGIC_ERRORS,
+				"invalid purpose",
+				[
+					{
+						field: "purpose",
+						message: ["invalid purpose"],
+					},
+				]
+			);
+		}
+
+		const otp = Math.floor(100000 + Math.random() * 900000);
+		await prisma.codes.create({
+			data: {
+				code: otp,
+				type: data.purpose,
+				user: {
+					connect: {
+						id: user.id,
+					},
+				},
+			},
+		});
+
+		let subject: string, html: string;
+		if (data.purpose === "activation") {
+			subject = "Account Activation";
+			html = `<h1>Account Activation</h1><p>Hi ${user.profile.name},</p><p>Thank you for signing up with us. Please use the following code to activate your account.</p><p><b>${otp}</b></p>`;
+		} else {
+			subject = "Password Reset";
+			html = `<h1>Password Reset</h1><p>Hi ${user.profile.name},</p><p>Please use the following code to reset your password.</p><p><b>${otp}</b></p>`;
+		}
+
+		await this.email.sendEmail(user.email, subject, html);
+	}
+	private async getOTP(
+		email: string,
+		code: number,
+		purpose: "activation" | "passwordReset"
+	): Promise<users & { codes: codes[] }> {
+		const savedCode = await prisma.users.findUnique({
+			where: {
+				email: email,
+			},
+			include: {
+				codes: {
+					where: {
+						code: code,
+						type: purpose,
+					},
+				},
+			},
+		});
+
+		if (!savedCode || savedCode.codes.length === 0) {
+			throw new HttpException(401, BUSINESS_LOGIC_ERRORS, "invalid otp", [
+				{
+					field: "code",
+					message: ["invalid otp"],
+				},
+			]);
+		}
+
+		if (
+			savedCode.codes[0].createdAt <
+			new Date(Date.now() - parse(OTP_EXPIRES_IN))
+		) {
+			throw new HttpException(401, BUSINESS_LOGIC_ERRORS, "otp expired", [
+				{
+					field: "code",
+					message: ["otp expired"],
+				},
+			]);
+		}
+
+		if (savedCode.codes[0].usedAt) {
+			throw new HttpException(
+				401,
+				BUSINESS_LOGIC_ERRORS,
+				"otp already used",
+				[
+					{
+						field: "code",
+						message: ["otp already used"],
+					},
+				]
+			);
+		}
+
+		return savedCode;
+	}
+
+	public async verifyActivationOTP(data: VerifyOTPRequest): Promise<void> {
+		try {
+			const user = await prisma.users.findUnique({
+				where: {
+					email: data.email,
+				},
+			});
+
+			if (!user) {
+				throw new HttpException(
+					404,
+					BUSINESS_LOGIC_ERRORS,
+					"user not found",
+					[
+						{
+							field: "email",
+							message: ["user not found"],
+						},
+					]
+				);
+			}
+
+			if (user.isActive) {
+				throw new HttpException(
+					400,
+					BUSINESS_LOGIC_ERRORS,
+					"user already activated",
+					[
+						{
+							field: "email",
+							message: ["user already activated"],
+						},
+					]
+				);
+			}
+
+			const code = await this.getOTP(data.email, data.code, "activation");
+
+			await prisma.$transaction([
+				prisma.codes.update({
+					data: {
+						usedAt: new Date(),
+					},
+					where: {
+						id: code.codes[0].id,
+					},
+				}),
+				prisma.users.update({
+					data: {
+						isActive: true,
+					},
+					where: {
+						id: code.codes[0].userId,
+					},
+				}),
+			]);
+		} catch (e) {
+			logger.error(e);
+			if (e instanceof HttpException) {
+				throw e;
+			}
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"error Factivating account"
+			);
+		}
+	}
+
+	public async verifyResetPasswordOTP(
+		data: VerifyOTPRequest
+	): Promise<VerifyResetPasswordOTPResponse> {
+		try {
+			const code = await this.getOTP(
+				data.email,
+				data.code,
+				"passwordReset"
+			);
+
+			const token = uuidv4();
+			await prisma.$transaction([
+				prisma.codes.update({
+					data: {
+						usedAt: new Date(),
+					},
+					where: {
+						id: code.codes[0].id,
+					},
+				}),
+				prisma.resetTokens.create({
+					data: {
+						token: token,
+						user: {
+							connect: {
+								id: code.codes[0].userId,
+							},
+						},
+					},
+				}),
+			]);
+
+			return new VerifyResetPasswordOTPResponse(token);
+		} catch (e) {
+			logger.error(e);
+			if (e instanceof HttpException) {
+				throw e;
+			}
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"error creating reset password token"
+			);
+		}
+	}
+
+	public async resetPassword(data: PasswordResetRequest): Promise<void> {
+		try {
+			const savedToken = await prisma.resetTokens.findUnique({
+				where: {
+					token: data.token,
+				},
+			});
+
+			if (!savedToken) {
+				throw new HttpException(
+					401,
+					BUSINESS_LOGIC_ERRORS,
+					"invalid token",
+					[
+						{
+							field: "token",
+							message: ["invalid token"],
+						},
+					]
+				);
+			}
+
+			if (
+				savedToken.createdAt <
+				new Date(Date.now() - parse(OTP_EXPIRES_IN))
+			) {
+				throw new HttpException(
+					401,
+					BUSINESS_LOGIC_ERRORS,
+					"token expired",
+					[
+						{
+							field: "token",
+							message: ["token expired"],
+						},
+					]
+				);
+			}
+
+			if (savedToken.usedAt) {
+				throw new HttpException(
+					401,
+					BUSINESS_LOGIC_ERRORS,
+					"token already used",
+					[
+						{
+							field: "token",
+							message: ["token already used"],
+						},
+					]
+				);
+			}
+
+			const hashedPassword = await hash(data.password, 10);
+			await prisma.$transaction([
+				prisma.resetTokens.update({
+					where: {
+						id: savedToken.id,
+					},
+					data: {
+						usedAt: new Date(),
+					},
+				}),
+				prisma.users.update({
+					where: {
+						id: savedToken.userId,
+					},
+					data: {
+						password: hashedPassword,
+					},
+				}),
+			]);
+		} catch (e) {
+			logger.error(e);
+			if (e instanceof HttpException) {
+				throw e;
+			}
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"error resetting password"
+			);
+		}
 	}
 
 	private async generateTokens(
 		user: users,
 		sessionKey: string,
 		isFresh: boolean
-	): Promise<{
-		uuid: string;
-		access: {
-			token: string;
-			expiredAt: number;
-		};
-		refresh: {
-			token: string;
-			expiredAt: number;
-		};
-	}> {
+	): Promise<TokenPayload> {
 		const accessTokenExpiresAt =
 			Date.now() + parse(ACCESS_TOKEN_EXPIRES_IN);
 		const refreshTokenExpiresAt =
@@ -113,123 +545,137 @@ export class UsersService {
 			REFRESH_TOKEN_SECRET
 		);
 
-		return {
-			uuid: user.id,
-			access: {
+		return new TokenPayload(
+			user.id,
+			{
 				token: accessToken,
 				expiredAt: accessTokenExpiresAt,
 			},
-			refresh: {
+			{
 				token: refreshToken,
 				expiredAt: refreshTokenExpiresAt,
-			},
-		};
+			}
+		);
 	}
 
 	public async login(
 		data: LogInRequest,
 		meta: DeviceMeta
-	): Promise<{
-		uuid: string;
-		access: {
-			token: string;
-			expiredAt: number;
-		};
-		refresh: {
-			token: string;
-			expiredAt: number;
-		};
-	}> {
-		const storedUser = await prisma.users.findUnique({
-			where: { email: data.email },
-		});
+	): Promise<TokenPayload> {
+		try {
+			const storedUser = await prisma.users.findUnique({
+				where: { email: data.email },
+			});
 
-		const commonError: ErrorValue[] = [
-			{
-				field: "email",
-				message: ["invalid credentials provided"],
-			},
-			{
-				field: "password",
-				message: ["invalid credentials provided"],
-			},
-		];
-
-		if (!storedUser) {
-			throw new HttpException(
-				401,
-				BUSINESS_LOGIC_ERRORS,
-				"invalid credentials",
-				commonError
-			);
-		}
-		const isPasswordCorrect = await compare(
-			data.password,
-			storedUser.password
-		);
-		if (!isPasswordCorrect) {
-			throw new HttpException(
-				401,
-				BUSINESS_LOGIC_ERRORS,
-				"invalid credentials",
-				commonError
-			);
-		}
-
-		// deactive all other sessions with the same device
-		async () => {
-			if (meta.deviceId) {
-				await prisma.sessions.updateMany({
-					where: {
-						userId: storedUser.id,
-						isActive: true,
-						deviceId: meta.deviceId,
-					},
-					data: {
-						isActive: false,
-					},
-				});
-			}
-		};
-
-		// uuid session key
-		const key = uuidv4();
-
-		// create session
-		await prisma.sessions.create({
-			data: {
-				user: {
-					connect: {
-						id: storedUser.id,
-					},
+			const commonError: ErrorValue[] = [
+				{
+					field: "email",
+					message: ["invalid credentials provided"],
 				},
-				deviceId: meta.deviceId,
-				deviceName: meta.deviceName,
-				ip: meta.ip,
-				key: key,
-				expiresAt: new Date(
-					Date.now() + parse(REFRESH_TOKEN_EXPIRES_IN)
-				),
-			},
-		});
+				{
+					field: "password",
+					message: ["invalid credentials provided"],
+				},
+			];
 
-		return await this.generateTokens(storedUser, key, true);
+			if (!storedUser) {
+				throw new HttpException(
+					401,
+					BUSINESS_LOGIC_ERRORS,
+					"invalid credentials",
+					commonError
+				);
+			}
+
+			if (!storedUser.isActive) {
+				throw new HttpException(
+					401,
+					BUSINESS_LOGIC_ERRORS,
+					"account not activated",
+					[
+						{
+							field: "email",
+							message: ["account not activated"],
+						},
+					]
+				);
+			}
+
+			const isPasswordCorrect = await compare(
+				data.password,
+				storedUser.password
+			);
+			if (!isPasswordCorrect) {
+				throw new HttpException(
+					401,
+					BUSINESS_LOGIC_ERRORS,
+					"invalid credentials",
+					commonError
+				);
+			}
+
+			// deactive all other sessions with the same device
+			async () => {
+				if (meta.deviceId) {
+					await prisma.sessions.updateMany({
+						where: {
+							userId: storedUser.id,
+							isActive: true,
+							deviceId: meta.deviceId,
+						},
+						data: {
+							isActive: false,
+						},
+					});
+				}
+			};
+
+			// uuid session key
+			const key = uuidv4();
+
+			// create session
+			await prisma.sessions.create({
+				data: {
+					user: {
+						connect: {
+							id: storedUser.id,
+						},
+					},
+					deviceId: meta.deviceId,
+					deviceName: meta.deviceName,
+					ip: meta.ip,
+					key: key,
+					expiresAt: new Date(
+						Date.now() + parse(REFRESH_TOKEN_EXPIRES_IN)
+					),
+				},
+			});
+
+			return await this.generateTokens(storedUser, key, true);
+		} catch (e) {
+			logger.error(e);
+			if (e instanceof HttpException) {
+				throw e;
+			}
+
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"internal server error",
+				[
+					{
+						field: "server",
+						message: ["cannot create session"],
+					},
+				]
+			);
+		}
 	}
 
 	public async refreshTokens(
 		data: RefreshTokenRequest,
 		meta: DeviceMeta
-	): Promise<{
-		uuid: string;
-		access: {
-			token: string;
-			expiredAt: number;
-		};
-		refresh: {
-			token: string;
-			expiredAt: number;
-		};
-	}> {
+	): Promise<TokenPayload> {
 		let decoded: RefreshTokenPayload;
 
 		try {
@@ -237,7 +683,71 @@ export class UsersService {
 				data.refreshToken,
 				REFRESH_TOKEN_SECRET
 			) as RefreshTokenPayload;
+
+			if (decoded.category !== "refresh") {
+				throw new HttpException(
+					401,
+					BUSINESS_LOGIC_ERRORS,
+					"invalid token",
+					[
+						{
+							field: "refreshToken",
+							message: ["token is not a refresh token"],
+						},
+					]
+				);
+			}
+
+			const storedSession = await prisma.sessions.findUnique({
+				where: {
+					key: decoded.sid,
+				},
+				include: {
+					user: true,
+				},
+			});
+
+			if (!storedSession || !storedSession.isActive) {
+				throw new HttpException(
+					401,
+					BUSINESS_LOGIC_ERRORS,
+					"invalid token",
+					[
+						{
+							field: "refreshToken",
+							message: ["session does not exist"],
+						},
+					]
+				);
+			}
+
+			// uuid session key
+			const key = uuidv4();
+
+			// replace session key
+			await prisma.sessions.update({
+				where: {
+					key: decoded.sid,
+				},
+				data: {
+					key: key,
+					deviceId: meta.deviceId,
+					deviceName: meta.deviceName,
+					ip: meta.ip,
+					expiresAt: new Date(
+						Date.now() + parse(REFRESH_TOKEN_EXPIRES_IN)
+					),
+					lastUsed: new Date(Date.now()),
+				},
+			});
+
+			return await this.generateTokens(storedSession.user, key, false);
 		} catch (e) {
+			logger.error(e);
+			if (e instanceof HttpException) {
+				throw e;
+			}
+
 			if (e instanceof JsonWebTokenError) {
 				throw new HttpException(
 					401,
@@ -252,67 +762,18 @@ export class UsersService {
 				);
 			}
 
-			throw e;
-		}
-
-		if (decoded.category !== "refresh") {
 			throw new HttpException(
-				401,
+				500,
 				BUSINESS_LOGIC_ERRORS,
-				"invalid token",
+				"internal server error",
 				[
 					{
-						field: "refreshToken",
-						message: ["token is not a refresh token"],
+						field: "server",
+						message: ["cannot create session"],
 					},
 				]
 			);
 		}
-
-		const storedSession = await prisma.sessions.findUnique({
-			where: {
-				key: decoded.sid,
-			},
-			include: {
-				user: true,
-			},
-		});
-
-		if (!storedSession || !storedSession.isActive) {
-			throw new HttpException(
-				401,
-				BUSINESS_LOGIC_ERRORS,
-				"invalid token",
-				[
-					{
-						field: "refreshToken",
-						message: ["session does not exist"],
-					},
-				]
-			);
-		}
-
-		// uuid session key
-		const key = uuidv4();
-
-		// replace session key
-		await prisma.sessions.update({
-			where: {
-				key: decoded.sid,
-			},
-			data: {
-				key: key,
-				deviceId: meta.deviceId,
-				deviceName: meta.deviceName,
-				ip: meta.ip,
-				expiresAt: new Date(
-					Date.now() + parse(REFRESH_TOKEN_EXPIRES_IN)
-				),
-				lastUsed: new Date(Date.now()),
-			},
-		});
-
-		return await this.generateTokens(storedSession.user, key, false);
 	}
 
 	public async validateAccessToken(token: AccessTokenPayload): Promise<{
@@ -320,96 +781,127 @@ export class UsersService {
 		role: string;
 		isFresh: boolean;
 	}> {
-		const storedSession = await prisma.sessions.findUnique({
-			where: {
-				key: token.sid,
-			},
-		});
+		try {
+			const storedSession = await prisma.sessions.findUnique({
+				where: {
+					key: token.sid,
+				},
+			});
 
-		if (!storedSession || !storedSession.isActive) {
+			if (!storedSession || !storedSession.isActive) {
+				throw new HttpException(
+					401,
+					BUSINESS_LOGIC_ERRORS,
+					"invalid token",
+					[
+						{
+							field: "authorization",
+							message: ["session does not exist"],
+						},
+					]
+				);
+			}
+
+			return {
+				uid: token.uid,
+				role: token.role,
+				isFresh: token.isFresh,
+			};
+		} catch (e) {
+			logger.error(e);
+            if (e instanceof HttpException) {
+                throw e;
+            }
+
 			throw new HttpException(
-				401,
+				500,
 				BUSINESS_LOGIC_ERRORS,
-				"invalid token",
+				"internal server error",
 				[
 					{
-						field: "authorization",
-						message: ["session does not exist"],
+						field: "server",
+						message: ["cannot validate session"],
 					},
 				]
 			);
 		}
-
-		return {
-			uid: token.uid,
-			role: token.role,
-			isFresh: token.isFresh,
-		};
 	}
 
 	public async logout(token: AccessTokenPayload): Promise<void> {
-		await prisma.sessions.update({
-			where: {
-				key: token.sid,
-			},
-			data: {
-				isActive: false,
-			},
-		});
+		try {
+			await prisma.sessions.update({
+				where: {
+					key: token.sid,
+				},
+				data: {
+					isActive: false,
+				},
+			});
 
-		return;
-	}
-
-	public async getUserInfo(data: GetUserInfoRequest): Promise<{
-		id: string;
-		email: string;
-		role: string;
-		alergens:
-			| {
-					id: number;
-					name: string;
-					icon: string | null;
-					isMainAlergen: boolean;
-			  }[]
-			| null;
-		name: string | null;
-		avatar: string | null;
-		createdAt: Date;
-		updatedAt: Date;
-	}> {
-		const storedUser = await prisma.users.findUnique({
-			where: {
-				id: data.id,
-			},
-			include: {
-				alergens: true,
-				profile: true,
-			},
-		});
-
-		if (!storedUser) {
+			return;
+		} catch (e) {
+			logger.error(e);
+            
 			throw new HttpException(
-				404,
+				500,
 				BUSINESS_LOGIC_ERRORS,
-				"user not found",
+				"internal server error",
 				[
 					{
-						field: "uid",
-						message: ["user does not exist"],
+						field: "server",
+						message: ["cannot logout"],
 					},
 				]
 			);
 		}
+	}
 
-		return {
-			id: storedUser.id,
-			email: storedUser.email,
-			role: storedUser.role,
-			alergens: storedUser.alergens,
-			name: storedUser.profile?.name || null,
-			avatar: storedUser.profile?.avatar || null,
-			createdAt: storedUser.createdAt,
-			updatedAt: storedUser.updatedAt,
-		};
+	public async getUserDetail(
+		data: GetUserDetailRequest
+	): Promise<UserDetailResponse> {
+		try {
+			const storedUser = await prisma.users.findUnique({
+				where: {
+					id: data.id,
+				},
+				include: {
+					alergens: true,
+					profile: true,
+				},
+			});
+
+			if (!storedUser) {
+				throw new HttpException(
+					404,
+					BUSINESS_LOGIC_ERRORS,
+					"user not found",
+					[
+						{
+							field: "uid",
+							message: ["user does not exist"],
+						},
+					]
+				);
+			}
+
+			return new UserDetailResponse(storedUser);
+		} catch (e) {
+			logger.error(e);
+            if (e instanceof HttpException) {
+                throw e;
+            }
+
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"internal server error",
+				[
+					{
+						field: "server",
+						message: ["cannot get user detail"],
+					},
+				]
+			);
+		}
 	}
 }

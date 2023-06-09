@@ -16,7 +16,7 @@ export class FoodController {
                 id: +req.params.id,
                 userId: res.locals.user ? res.locals.user.uid : null,
             })
-            res.status(201).json({
+            res.status(200).json({
                 statusCode: SUCCESS,
                 message: "success retrieving food",
                 data: storedFood,
@@ -31,12 +31,10 @@ export class FoodController {
         next: NextFunction
     ): Promise<void> => {
         try {
-            const storedFood = await this.foodService.createFood({
-                id: +req.params.id,
-            })
+            const storedFood = await this.foodService.createFood(req.body)
             res.status(201).json({
                 statusCode: SUCCESS,
-                message: "success create food",
+                message: "success creating food",
                 data: storedFood,
             })
         }

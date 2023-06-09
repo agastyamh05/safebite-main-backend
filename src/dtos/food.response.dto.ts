@@ -26,7 +26,7 @@ export class IngredientsResponse {
 	}
 }
 
-export class FoodResponse {
+export class GetFoodResponse {
 	public id: number;
 	public name: string;
 	public picture: string;
@@ -43,5 +43,13 @@ export class FoodResponse {
         this.description = food.description;
         this.ingredients = ingredients;
         this.alergic = alergic;
+    }
+}
+
+export class CreateFoodResponse {
+    public id: number;
+
+    constructor(food: foods) {
+        this.id = food.id;
     }
 }

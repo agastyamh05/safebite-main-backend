@@ -3,13 +3,18 @@
 import { Service } from "typedi";
 import { BUSINESS_LOGIC_ERRORS } from "../utils/const/errorCodes";
 import prisma from "../utils/driver/prisma";
-import { GetFoodRequest } from "../dtos/food.request.dto";
+import { CreateFoodRequest, GetFoodRequest } from "../dtos/food.request.dto";
 import { HttpException } from "../utils/exceptions/httpException";
-import { FoodResponse, IngredientsResponse } from "../dtos/food.response.dto";
+import {
+	CreateFoodResponse,
+	GetFoodResponse,
+	IngredientsResponse,
+} from "../dtos/food.response.dto";
+import { logger } from "../utils/logger/logger";
 
 @Service()
 export class FoodService {
-	public async getFood(data: GetFoodRequest): Promise<FoodResponse> {
+	public async getFood(data: GetFoodRequest): Promise<GetFoodResponse> {
 		const storedFood = await prisma.foods.findUnique({
 			where: {
 				id: data.id,
@@ -60,7 +65,6 @@ export class FoodService {
 				},
 			});
 
-
 			// check if user is alergic to any ingredient of the food, if so, add it to the response
 			if (alergens[0].alergens.length > 0) {
 				alergic = storedIngredients.filter((ingredient) => {
@@ -71,32 +75,36 @@ export class FoodService {
 			}
 		}
 
-		return new FoodResponse(storedFood, storedIngredients, alergic);
+		return new GetFoodResponse(storedFood, storedIngredients, alergic);
 	}
-    public async createFood (data: GetFoodRequest): Promise <{
-        id: number;
-    }>{
-        const storedFood = await prisma.foods.findUnique({
-            where: {
-                id: data.id,
-            },
-            include: { ingredients: true }
-        });
-        if (!storedFood) {
-            throw new HttpException(
-                404,
-                BUSINESS_LOGIC_ERRORS,
-                "can not create food",
-                [
-                    {
-                        field: "id",
-                        message: ["food does not exist"]
-                    }
-                ]
-            )
-        }
-        return{
-            id: storedFood.id,
-        }
-    }
+
+	public async createFood(
+		data: CreateFoodRequest
+	): Promise<CreateFoodResponse> {
+		try {
+			const food = await prisma.foods.create({
+				data: {
+					name: data.name,
+					description: data.description,
+					picture: data.picture,
+					externalId: data.externalId,
+					ingredients: {
+						connect: data.ingredients.map((ingredient) => {
+							return {
+								id: ingredient,
+							};
+						}),
+					},
+				},
+			});
+			return new CreateFoodResponse(food);
+		} catch (error) {
+			logger.error(error);
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"error creating food"
+			);
+		}
+	}
 }

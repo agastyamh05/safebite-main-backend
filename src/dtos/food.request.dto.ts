@@ -4,6 +4,7 @@ import {
 	MinLength,
 	IsNumber,
 	IsOptional,
+    IsBoolean,
 } from "class-validator";
 
 export class GetFoodRequest {
@@ -32,4 +33,19 @@ export class CreateFoodRequest {
 	@IsNumber()
 	@IsNotEmpty()
 	public ingredients: number[];
+}
+
+export class CreateIngredientRequest {
+	@IsString()
+	@IsNotEmpty()
+	@MinLength(3)
+	public name: string;
+
+	@IsOptional()
+	@IsString()
+	public icon?: string;
+
+	@IsOptional()
+	@IsBoolean()
+	public isMainAlergen?: boolean;
 }

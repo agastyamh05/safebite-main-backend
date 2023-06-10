@@ -42,4 +42,22 @@ export class FoodController {
             next(error);
         }
     }
+
+    public createIngredient = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<void> => {
+        try {
+            const storedIngredient = await this.foodService.createIngredient(req.body)
+            res.status(201).json({
+                statusCode: SUCCESS,
+                message: "success creating ingredient",
+                data: storedIngredient,
+            })
+        }
+        catch (error) {
+            next(error);
+        }
+    }
 }

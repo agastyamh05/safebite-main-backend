@@ -3,14 +3,16 @@
 import { Service } from "typedi";
 import { BUSINESS_LOGIC_ERRORS } from "../utils/const/errorCodes";
 import prisma from "../utils/driver/prisma";
-import { CreateFoodRequest, GetFoodRequest } from "../dtos/food.request.dto";
+import { CreateFoodRequest, CreateIngredientRequest, GetFoodRequest } from "../dtos/food.request.dto";
 import { HttpException } from "../utils/exceptions/httpException";
 import {
 	CreateFoodResponse,
+	CreateIngredientResponse,
 	GetFoodResponse,
 	IngredientsResponse,
 } from "../dtos/food.response.dto";
 import { logger } from "../utils/logger/logger";
+import { Prisma } from "@prisma/client";
 
 @Service()
 export class FoodService {
@@ -99,6 +101,26 @@ export class FoodService {
 			});
 			return new CreateFoodResponse(food);
 		} catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === "P2002") {
+                    throw new HttpException(
+                        400,
+                        BUSINESS_LOGIC_ERRORS,
+                        "food already exists",
+                        [
+                            {
+                                field: "name",
+                                message: [`food with name "${data.name}" already exists`],
+                            },
+                        ]
+                    );
+                }
+            }
+
+            if (error instanceof HttpException) {
+                throw error;
+            }
+
 			logger.error(error);
 			throw new HttpException(
 				500,
@@ -107,4 +129,45 @@ export class FoodService {
 			);
 		}
 	}
+
+    public async createIngredient(data: CreateIngredientRequest): Promise<CreateIngredientResponse> {
+        try {
+            const ingredient = await prisma.ingredients.create({
+                data: {
+                    name: data.name,
+                    icon: data.icon,
+                    isMainAlergen: data.isMainAlergen,
+                },
+            });
+            return new CreateIngredientResponse(ingredient);
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === "P2002") {
+                    throw new HttpException(
+                        400,
+                        BUSINESS_LOGIC_ERRORS,
+                        "ingredients already exists",
+                        [
+                            {
+                                field: "name",
+                                message: [`ingredients with name "${data.name}" already exists`],
+                            },
+                        ]
+                    );
+                }
+            }
+
+            if (error instanceof HttpException) {
+                throw error;
+            }
+
+            logger.error(error);
+            throw new HttpException(
+                500,
+                BUSINESS_LOGIC_ERRORS,
+                "error creating ingredient"
+            );
+        }
+    }
+
 }

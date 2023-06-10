@@ -53,3 +53,11 @@ export class CreateFoodResponse {
         this.id = food.id;
     }
 }
+
+export class CreateIngredientResponse {
+    public id: number;
+
+    constructor(ingredient: ingredients) {
+        this.id = ingredient.id;
+    }
+}

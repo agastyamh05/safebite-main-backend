@@ -30,7 +30,7 @@ export class CreateFoodRequest {
 	@MinLength(3)
 	public description: string;
 
-	@IsNumber()
+	@IsNumber({}, { each: true })
 	@IsNotEmpty()
 	public ingredients: number[];
 }

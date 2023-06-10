@@ -12,6 +12,14 @@ export class GetFoodRequest {
 	public userId?: string;
 }
 
+export class GetFoodsRequest {
+    public id?: number;
+
+    public externalId?: string;
+
+    public name?: string;
+}
+
 export class CreateFoodRequest {
 	@IsOptional()
 	public externalId: string;

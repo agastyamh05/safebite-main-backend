@@ -25,6 +25,28 @@ export class FoodController {
 			next(error);
 		}
 	};
+
+	public getFoods = async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			const storedFoods = await this.foodService.getFoods({
+				id: req.query.id as number | undefined,
+				externalId: req.query.externalId as string,
+				name: req.query.name as string,
+			});
+			res.status(200).json({
+				statusCode: SUCCESS,
+				message: "success retrieving foods",
+				data: storedFoods,
+			});
+		} catch (error) {
+			next(error);
+		}
+	};
+    
 	public createFood = async (
 		req: Request,
 		res: Response,

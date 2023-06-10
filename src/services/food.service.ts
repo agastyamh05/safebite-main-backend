@@ -7,12 +7,14 @@ import {
 	CreateFoodRequest,
 	CreateIngredientRequest,
 	GetFoodRequest,
+	GetFoodsRequest,
 } from "../dtos/food.request.dto";
 import { HttpException } from "../utils/exceptions/httpException";
 import {
 	CreateFoodResponse,
 	CreateIngredientResponse,
 	GetFoodResponse,
+	GetFoodsResponse,
 	IngredientsResponse,
 } from "../dtos/food.response.dto";
 import { logger } from "../utils/logger/logger";
@@ -82,6 +84,43 @@ export class FoodService {
 		}
 
 		return new GetFoodResponse(storedFood, storedIngredients, alergic);
+	}
+
+	public async getFoods(data: GetFoodsRequest): Promise<GetFoodsResponse> {
+		try {
+			const foods = await prisma.foods.findMany({
+				where: {
+					name: {
+						contains: data.name,
+					},
+					id: {
+						in: data.id,
+					},
+					externalId: {
+						in: data.externalId,
+					},
+				},
+				include: {
+					ingredients: {
+						include: {
+							_count: {
+								select: {
+									allergicUsers: true,
+								},
+							},
+						},
+					},
+				},
+			});
+			return new GetFoodsResponse(foods);
+		} catch (error) {
+			logger.error(error);
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"error getting foods"
+			);
+		}
 	}
 
 	public async createFood(

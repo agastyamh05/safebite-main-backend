@@ -107,6 +107,9 @@ export class FoodService {
 						updatedAt: true,
 						deletedAt: true,
 						ingredients: {
+                            where: {
+                                isMainAlergen: true,
+                            },
 							include: {
 								_count: {
 									select: {

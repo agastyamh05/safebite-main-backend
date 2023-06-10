@@ -55,7 +55,7 @@ class BriefFoodsResponse {
 	public name: string;
 	public picture: string;
 	public externalId: string | null;
-	public ingredients: IngredientsResponse[];
+	public ingredients: BriefIngredientsResponse[];
 
 	constructor(food: {
 		id: number;
@@ -77,8 +77,28 @@ class BriefFoodsResponse {
 		this.externalId = food.externalId;
 
 		this.ingredients = food.ingredients.map((ingredient) => {
-			return new IngredientsResponse(ingredient);
+			return new BriefIngredientsResponse(ingredient);
 		});
+	}
+}
+
+export class BriefIngredientsResponse {
+	public id: number;
+	public name: string;
+	public icon: string | null;
+	public userAlergic: number;
+
+	constructor(
+		ingredient: ingredients & {
+			_count: {
+				allergicUsers: number;
+			};
+		}
+	) {
+		this.id = ingredient.id;
+		this.name = ingredient.name;
+		this.icon = ingredient.icon;
+		this.userAlergic = ingredient._count.allergicUsers;
 	}
 }
 

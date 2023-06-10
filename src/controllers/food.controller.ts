@@ -33,8 +33,10 @@ export class FoodController {
 	): Promise<void> => {
 		try {
 			const storedFoods = await this.foodService.getFoods({
-				id: req.query.id as number | undefined,
-				externalId: req.query.externalId as string,
+				limit: req.query.limit ? +req.query.limit : 10,
+				page: req.query.page ? +req.query.page : 1,
+				id: req.query.id? +req.query.id : undefined,
+				externalId: req.query.externalId ? req.query.externalId as string : undefined,
 				name: req.query.name as string,
 			});
 			res.status(200).json({
@@ -46,7 +48,7 @@ export class FoodController {
 			next(error);
 		}
 	};
-    
+
 	public createFood = async (
 		req: Request,
 		res: Response,

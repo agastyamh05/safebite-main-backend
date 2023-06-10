@@ -88,31 +88,52 @@ export class FoodService {
 
 	public async getFoods(data: GetFoodsRequest): Promise<GetFoodsResponse> {
 		try {
-			const foods = await prisma.foods.findMany({
-				where: {
-					name: {
-						contains: data.name,
+			const [foods, total] = await prisma.$transaction([
+				prisma.foods.findMany({
+					where: {
+						name: {
+							mode: "insensitive",
+							contains: data.name,
+						},
+						id: data.id,
+						externalId: data.externalId,
 					},
-					id: {
-						in: data.id,
-					},
-					externalId: {
-						in: data.externalId,
-					},
-				},
-				include: {
-					ingredients: {
-						include: {
-							_count: {
-								select: {
-									allergicUsers: true,
+					select: {
+						id: true,
+						name: true,
+						picture: true,
+						externalId: true,
+						createdAt: true,
+						updatedAt: true,
+						deletedAt: true,
+						ingredients: {
+							include: {
+								_count: {
+									select: {
+										allergicUsers: true,
+									},
 								},
 							},
 						},
 					},
-				},
+					skip: (data.page - 1) * data.limit,
+					take: data.limit,
+				}),
+				prisma.foods.count({
+					where: {
+						name: {
+							contains: data.name,
+						},
+						id: data.id,
+						externalId: data.externalId,
+					},
+				}),
+			]);
+			return new GetFoodsResponse(foods, {
+				page: data.page,
+				limit: data.limit,
+				total: total,
 			});
-			return new GetFoodsResponse(foods);
 		} catch (error) {
 			logger.error(error);
 			throw new HttpException(

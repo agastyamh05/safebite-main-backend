@@ -57,15 +57,20 @@ class BriefFoodsResponse {
 	public externalId: string | null;
 	public ingredients: IngredientsResponse[];
 
-	constructor(
-		food: foods & {
-			ingredients: (ingredients & {
-				_count: {
-					allergicUsers: number;
-				};
-			})[];
-		}
-	) {
+	constructor(food: {
+		id: number;
+		externalId: string | null;
+		name: string;
+		ingredients: (ingredients & {
+			_count: {
+				allergicUsers: number;
+			};
+		})[];
+		createdAt: Date;
+		updatedAt: Date;
+		deletedAt: Date | null;
+		picture: string;
+	}) {
 		this.id = food.id;
 		this.name = food.name;
 		this.picture = food.picture;
@@ -79,19 +84,37 @@ class BriefFoodsResponse {
 
 export class GetFoodsResponse {
 	public foods: BriefFoodsResponse[];
+	public meta: {
+		page: number;
+		limit: number;
+		total: number;
+	};
 
 	constructor(
-		foods: (foods & {
+		foods: {
+			id: number;
+			externalId: string | null;
+			name: string;
 			ingredients: (ingredients & {
 				_count: {
 					allergicUsers: number;
 				};
 			})[];
-		})[]
+			createdAt: Date;
+			updatedAt: Date;
+			deletedAt: Date | null;
+			picture: string;
+		}[],
+		meta: {
+			page: number;
+			limit: number;
+			total: number;
+		}
 	) {
 		this.foods = foods.map((food) => {
 			return new BriefFoodsResponse(food);
 		});
+		this.meta = meta;
 	}
 }
 

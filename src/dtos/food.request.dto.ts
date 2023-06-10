@@ -4,12 +4,21 @@ import {
 	MinLength,
 	IsNumber,
 	IsOptional,
-    IsBoolean,
+	IsBoolean,
 } from "class-validator";
+import { PaginationRequest } from "./common.request.dto";
 
 export class GetFoodRequest {
 	public id: number;
 	public userId?: string;
+}
+
+export class GetFoodsRequest extends PaginationRequest {
+	public id?: number;
+
+	public externalId?: string;
+
+	public name?: string;
 }
 
 export class CreateFoodRequest {

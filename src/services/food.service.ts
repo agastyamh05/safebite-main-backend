@@ -7,12 +7,14 @@ import {
 	CreateFoodRequest,
 	CreateIngredientRequest,
 	GetFoodRequest,
+	GetFoodsRequest,
 } from "../dtos/food.request.dto";
 import { HttpException } from "../utils/exceptions/httpException";
 import {
 	CreateFoodResponse,
 	CreateIngredientResponse,
 	GetFoodResponse,
+	GetFoodsResponse,
 	IngredientsResponse,
 } from "../dtos/food.response.dto";
 import { logger } from "../utils/logger/logger";
@@ -82,6 +84,67 @@ export class FoodService {
 		}
 
 		return new GetFoodResponse(storedFood, storedIngredients, alergic);
+	}
+
+	public async getFoods(data: GetFoodsRequest): Promise<GetFoodsResponse> {
+		try {
+			const [foods, total] = await prisma.$transaction([
+				prisma.foods.findMany({
+					where: {
+						name: {
+							mode: "insensitive",
+							contains: data.name,
+						},
+						id: data.id,
+						externalId: data.externalId,
+					},
+					select: {
+						id: true,
+						name: true,
+						picture: true,
+						externalId: true,
+						createdAt: true,
+						updatedAt: true,
+						deletedAt: true,
+						ingredients: {
+                            where: {
+                                isMainAlergen: true,
+                            },
+							include: {
+								_count: {
+									select: {
+										allergicUsers: true,
+									},
+								},
+							},
+						},
+					},
+					skip: (data.page - 1) * data.limit,
+					take: data.limit,
+				}),
+				prisma.foods.count({
+					where: {
+						name: {
+							contains: data.name,
+						},
+						id: data.id,
+						externalId: data.externalId,
+					},
+				}),
+			]);
+			return new GetFoodsResponse(foods, {
+				page: data.page,
+				limit: data.limit,
+				total: total,
+			});
+		} catch (error) {
+			logger.error(error);
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"error getting foods"
+			);
+		}
 	}
 
 	public async createFood(

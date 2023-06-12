@@ -4,7 +4,7 @@
     "description": "",
     "main": "src/app.ts",
     "scripts": {
-        "build": "npm run prisma:generate && tsc --build --verbose tsconfig.build.json && tsc-alias -p tsconfig.json",
+        "build": "npx prisma generate && tsc --build --verbose tsconfig.build.json && tsc-alias -p tsconfig.json",
         "start": "node dist/server.js",
         "dev": "concurrently \"npx tsc --watch\" \"nodemon dist/server.js\"",
         "prisma:migrate": "dotenv -e .env.development.local -- prisma migrate dev --preview-feature",
@@ -13,7 +13,7 @@
         "prisma:studio": "prisma studio"
     },
     "prisma": {
-        "schema": "src/prisma/schema.prisma"
+        "schema": "prisma/schema.prisma"
     },
     "keywords": [],
     "author": "",
@@ -36,6 +36,7 @@
         "nodemailer": "^6.9.3",
         "parse-duration": "^1.0.3",
         "reflect-metadata": "^0.1.13",
+        "rxjs": "^7.8.1",
         "typedi": "^0.10.0",
         "uuid": "^9.0.0",
         "winston": "^3.8.2",
@@ -62,6 +63,7 @@
         "eslint-plugin-promise": "^6.1.1",
         "nodemon": "^2.0.22",
         "prisma": "^4.15.0",
+        "tsc-alias": "^1.8.6",
         "typescript": "^5.1.3"
     }
 }

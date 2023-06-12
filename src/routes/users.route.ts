@@ -7,6 +7,8 @@ import {
 	VerifyOTPRequest,
 	SendOtpRequest,
 	PasswordResetRequest,
+    UpdateProfileRequest,
+    UpdateAuthRequest,
 } from "../dtos/user.request.dto";
 import { Routes } from "../utils/interfaces/routers.interface";
 import { ValidationMiddleware } from "../utils/middlewares/validation.middleware";
@@ -82,11 +84,13 @@ export class UsersRoute implements Routes {
 		this.router.patch(
 			`${this.path}/profile`,
 			AuthMiddleware([], true),
+            ValidationMiddleware(UpdateProfileRequest),
 			this.userController.updateProfile
 		);
 		this.router.patch(
 			`${this.path}/`,
 			AuthMiddleware([], true, true),
+            ValidationMiddleware(UpdateAuthRequest),
 			this.userController.updateAuthDetail
 		);
 	}

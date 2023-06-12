@@ -23,91 +23,84 @@ export const AuthMiddleware = (
 	onlyFresh = false
 ): ((req: Request, res: Response, next: NextFunction) => void) => {
 	return async (req: Request, res: Response, next: NextFunction) => {
-		const token = getAuthorizationToken(req);
-		if (!token && strict) {
-			res.status(401).json({
-				statusCode: 401,
-				message: "Unauthorized",
-			});
-			return;
-		}
-
-		if (!token) {
-			res.locals.isAnonymous = true;
-			next();
-			return;
-		}
-
 		try {
+			const token = getAuthorizationToken(req);
+			if (!token && strict) {
+				throw new HttpException(
+					401,
+					BUSINESS_LOGIC_ERRORS,
+					"token is required"
+				);
+			}
+
+			if (!token) {
+				res.locals.isAnonymous = true;
+				next();
+				return;
+			}
+
 			res.locals.isAnonymous = false;
+			try {
+				const decoded = jwt.verify(
+					token,
+					ACCESS_TOKEN_SECRET
+				) as AccessTokenPayload;
 
-			const decoded = jwt.verify(
-				token,
-				ACCESS_TOKEN_SECRET
-			) as AccessTokenPayload;
+				if (decoded.category !== "access") {
+					throw new HttpException(
+						401,
+						BUSINESS_LOGIC_ERRORS,
+						"invalid token",
+						[
+							{
+								field: "authorization",
+								message: ["token is not access token"],
+							},
+						]
+					);
+				}
 
-			if (decoded.category !== "access") {
-				throw new HttpException(
-					401,
-					BUSINESS_LOGIC_ERRORS,
-					"invalid token",
-					[
-						{
-							field: "authorization",
-							message: ["token is not access token"],
-						},
-					]
-				);
+				if (onlyFresh && !decoded.isFresh) {
+					throw new HttpException(
+						401,
+						BUSINESS_LOGIC_ERRORS,
+						"need fresh token, please login again"
+					);
+				}
+
+				const user = await userService.validateAccessToken(decoded);
+				if (
+					rolesWhitelist.length != 0 &&
+					!rolesWhitelist.includes(user.role)
+				) {
+					throw new HttpException(
+						403,
+						BUSINESS_LOGIC_ERRORS,
+						"user role is not allowed to access this resource"
+					);
+				}
+
+				res.locals.user = user;
+				res.locals.token = decoded;
+				next();
+			} catch (error) {
+				if (error instanceof TokenExpiredError) {
+					throw new HttpException(
+						401,
+						VALIDATION_ERRORS,
+						"token expired, please login or refresh token"
+					);
+				}
+
+				if (error instanceof JsonWebTokenError) {
+					throw new HttpException(
+						401,
+						VALIDATION_ERRORS,
+						"invalid token"
+					);
+				}
 			}
-
-			if (onlyFresh && !decoded.isFresh) {
-				throw new HttpException(
-					401,
-					BUSINESS_LOGIC_ERRORS,
-					"need fresh token, please login again"
-				);
-			}
-
-			const user = await userService.validateAccessToken(decoded);
-			if (
-				rolesWhitelist.length != 0 &&
-				!rolesWhitelist.includes(user.role)
-			) {
-				throw new HttpException(
-					403,
-					BUSINESS_LOGIC_ERRORS,
-					"user role is not allowed to access this resource"
-				);
-			}
-
-			res.locals.user = user;
-			res.locals.token = decoded;
-			next();
 		} catch (error) {
-			if (error instanceof HttpException) {
-				res.status(error.status).json(error);
-				return;
-			}
-
-			if (error instanceof TokenExpiredError) {
-				res.status(401).json({
-					status: 401,
-                    statusCode: VALIDATION_ERRORS,
-					message: "token expired",
-				});
-
-				return;
-			}
-
-			if (error instanceof JsonWebTokenError) {
-				res.status(401).json({
-					statusCode: 401,
-					message: "Unauthorized",
-				});
-
-				return;
-			}
-
 			next(error);
 		}
 	};

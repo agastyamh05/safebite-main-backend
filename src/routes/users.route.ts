@@ -11,7 +11,7 @@ import {
     UpdateAuthRequest,
 } from "../dtos/user.request.dto";
 import { Routes } from "../utils/interfaces/routers.interface";
-import { ValidationMiddleware } from "../utils/middlewares/validation.middleware";
+import { BodyValidationMiddleware } from "../utils/middlewares/validation.middleware";
 import { AuthMiddleware } from "../utils/middlewares/auth.middleware";
 import { multerMiddleware } from "../utils/middlewares/multipart.middleware";
 
@@ -27,42 +27,42 @@ export class UsersRoute implements Routes {
 	private initializeRoutes() {
 		this.router.post(
 			`${this.path}/signup`,
-			ValidationMiddleware(SignUpRequest),
+			BodyValidationMiddleware(SignUpRequest),
 			this.userController.signup
 		);
 		this.router.post(
 			`${this.path}/activate`,
-			ValidationMiddleware(VerifyOTPRequest),
+			BodyValidationMiddleware(VerifyOTPRequest),
 			this.userController.activateAccount
 		);
 		this.router.post(
 			`${this.path}/activate/send`,
-			ValidationMiddleware(SendOtpRequest),
+			BodyValidationMiddleware(SendOtpRequest),
 			this.userController.sendActivationOTP
 		);
 		this.router.post(
 			`${this.path}/login`,
-			ValidationMiddleware(LogInRequest),
+			BodyValidationMiddleware(LogInRequest),
 			this.userController.login
 		);
 		this.router.post(
 			`${this.path}/reset-password/send`,
-			ValidationMiddleware(SendOtpRequest),
+			BodyValidationMiddleware(SendOtpRequest),
 			this.userController.sendResetPasswordOTP
 		);
 		this.router.post(
 			`${this.path}/reset-password/verify`,
-			ValidationMiddleware(VerifyOTPRequest),
+			BodyValidationMiddleware(VerifyOTPRequest),
 			this.userController.getResetPasswordToken
 		);
 		this.router.post(
 			`${this.path}/reset-password`,
-			ValidationMiddleware(PasswordResetRequest),
+			BodyValidationMiddleware(PasswordResetRequest),
 			this.userController.resetPassword
 		);
 		this.router.post(
 			`${this.path}/refresh`,
-			ValidationMiddleware(RefreshTokenRequest),
+			BodyValidationMiddleware(RefreshTokenRequest),
 			this.userController.refreshToken
 		);
 		this.router.post(
@@ -84,13 +84,13 @@ export class UsersRoute implements Routes {
 		this.router.patch(
 			`${this.path}/profile`,
 			AuthMiddleware([], true),
-            ValidationMiddleware(UpdateProfileRequest),
+            BodyValidationMiddleware(UpdateProfileRequest),
 			this.userController.updateProfile
 		);
 		this.router.patch(
 			`${this.path}/`,
 			AuthMiddleware([], true, true),
-            ValidationMiddleware(UpdateAuthRequest),
+            BodyValidationMiddleware(UpdateAuthRequest),
 			this.userController.updateAuthDetail
 		);
 	}

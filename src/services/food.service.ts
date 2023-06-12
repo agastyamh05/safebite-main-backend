@@ -8,6 +8,7 @@ import {
 	CreateIngredientRequest,
 	GetFoodRequest,
 	GetFoodsRequest,
+    GetIngredientsRequest,
 } from "../dtos/food.request.dto";
 import { HttpException } from "../utils/exceptions/httpException";
 import {
@@ -15,6 +16,7 @@ import {
 	CreateIngredientResponse,
 	GetFoodResponse,
 	GetFoodsResponse,
+	GetIngredientsResponse,
 	IngredientsResponse,
 } from "../dtos/food.response.dto";
 import { logger } from "../utils/logger/logger";
@@ -125,6 +127,7 @@ export class FoodService {
 				prisma.foods.count({
 					where: {
 						name: {
+                            mode: "insensitive",
 							contains: data.name,
 						},
 						id: data.id,
@@ -259,4 +262,54 @@ export class FoodService {
 			);
 		}
 	}
+
+    public async getIngredients(
+        data: GetIngredientsRequest
+    ): Promise<GetIngredientsResponse> {
+        try {
+            const [ingredients, total] = await prisma.$transaction([
+                prisma.ingredients.findMany({
+                    where: {
+                        name: {
+                            mode: "insensitive",
+                            contains: data.name,
+                        },
+                        isMainAlergen: data.isMainAlergen,
+                        deletedAt: null,
+                    },
+                    include: {
+                        _count: {
+                            select: {
+                                allergicUsers: true,
+                            },
+                        },
+                    },
+                    skip: (data.page - 1) * data.limit,
+                    take: data.limit,
+                }),
+                prisma.ingredients.count({
+                    where: {
+                        name: {
+                            mode: "insensitive",
+                            contains: data.name,
+                        },
+                        isMainAlergen: data.isMainAlergen,
+                        deletedAt: null,
+                    },
+                }),
+            ]);
+            return new GetIngredientsResponse(ingredients, {
+                page: data.page,
+                limit: data.limit,
+                total: total,
+            });
+        } catch (error) {
+            logger.error(error);
+            throw new HttpException(
+                500,
+                BUSINESS_LOGIC_ERRORS,
+                "error getting ingredients"
+            );
+        }
+    }
 }

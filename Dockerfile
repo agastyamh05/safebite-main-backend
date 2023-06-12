@@ -1,24 +1,28 @@
-FROM node:18 AS builder
+FROM node:18-alpine3.18 AS builder
 
-# Create app directory
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install app dependencies
-RUN npm install
+RUN npm install --omit=dev
 
 COPY . .
 
 RUN npm run build
 
-FROM node:18
+RUN npm prune --production
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/dist ./dist
+RUN wget https://gobinaries.com/tj/node-prune --output-document - | /bin/sh && node-prune
+
+FROM node:18-alpine3.18
+
+WORKDIR /usr/src/app
+
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY --from=builder /usr/src/app/dist ./dist
 
 EXPOSE 3000
-CMD [ "npm", "run", "start" ]
+
+CMD [ "node", "./dist/server.js" ]

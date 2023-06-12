@@ -1,7 +1,7 @@
 // Email driver to send email to users through Mailgun smtp
 
 
-import {  Service } from "typedi";
+import Container, {  Inject, Service } from "typedi";
 import * as nodemailer from "nodemailer";
 import Mail from "nodemailer/lib/mailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
@@ -15,15 +15,18 @@ import { logger } from "../logger/logger";
 export class EmailDriver {
 	// private readonly logger = new Logger(EmailDriver.name);
 	private readonly mailer: Mail;
+    
+    @Inject(EMAIL_HOST)
+    private readonly EmailFrom: string;
 
 	constructor() {
 		const smtpConfig: SMTPTransport.Options = {
-			host: EMAIL_HOST,
-			port: EMAIL_PORT,
-			secure: EMAIL_SECURE,
+			host: Container.get(EMAIL_HOST),
+			port: Container.get(EMAIL_PORT),
+			secure: Container.get(EMAIL_SECURE),
 			auth: {
-				user: EMAIL_USER,
-				pass: EMAIL_PASSWORD,
+				user: Container.get(EMAIL_USER),
+				pass: Container.get(EMAIL_PASSWORD),
 			},
 		};
 
@@ -38,7 +41,7 @@ export class EmailDriver {
 	) {
 		try {
 			await this.mailer.sendMail({
-				from: EMAIL_USER,
+				from: this.EmailFrom,
 				to,
 				subject,
 				// text,

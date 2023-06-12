@@ -7,10 +7,13 @@ import {
 	VerifyOTPRequest,
 	SendOtpRequest,
 	PasswordResetRequest,
+    UpdateProfileRequest,
+    UpdateAuthRequest,
 } from "../dtos/user.request.dto";
 import { Routes } from "../utils/interfaces/routers.interface";
 import { ValidationMiddleware } from "../utils/middlewares/validation.middleware";
 import { AuthMiddleware } from "../utils/middlewares/auth.middleware";
+import { multerMiddleware } from "../utils/middlewares/multipart.middleware";
 
 export class UsersRoute implements Routes {
 	public path = "/users";
@@ -71,6 +74,24 @@ export class UsersRoute implements Routes {
 			`${this.path}/`,
 			AuthMiddleware([], true),
 			this.userController.getUserDetail
+		);
+		this.router.post(
+			`${this.path}/profile/upload`,
+			AuthMiddleware([], true),
+			multerMiddleware.single("file"),
+			this.userController.updateUserPicture
+		);
+		this.router.patch(
+			`${this.path}/profile`,
+			AuthMiddleware([], true),
+            ValidationMiddleware(UpdateProfileRequest),
+			this.userController.updateProfile
+		);
+		this.router.patch(
+			`${this.path}/`,
+			AuthMiddleware([], true, true),
+            ValidationMiddleware(UpdateAuthRequest),
+			this.userController.updateAuthDetail
 		);
 	}
 }

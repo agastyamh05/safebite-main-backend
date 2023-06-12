@@ -9,6 +9,9 @@ import {
 	VerifyOTPRequest,
 	SendOtpRequest,
 	PasswordResetRequest,
+	UpdateUserPictureRequest as UpdatePictureRequest,
+	UpdateProfileRequest,
+	UpdateAuthRequest,
 } from "../dtos/user.request.dto";
 import { ErrorValue, HttpException } from "../utils/exceptions/httpException";
 import { hash, compare } from "bcrypt";
@@ -38,17 +41,19 @@ import {
 import { logger } from "../utils/logger/logger";
 import { Container } from "typedi";
 import { EmailDriver } from "../utils/driver/email";
+import { CloudStorageDriver } from "../utils/driver/storage";
 
 @Service()
 export class UsersService {
 	private readonly email: EmailDriver = Container.get(EmailDriver);
 
-	public async signup(data: SignUpRequest): Promise<SignUpResponse> {
-		const hashedPassword = await hash(data.password, 10);
-		let createdUser: users;
+	private readonly cloudStorage: CloudStorageDriver =
+		Container.get(CloudStorageDriver);
 
+	public async signup(data: SignUpRequest): Promise<SignUpResponse> {
 		try {
-			createdUser = await prisma.users.create({
+			const hashedPassword = await hash(data.password, 10);
+			const createdUser = await prisma.users.create({
 				data: {
 					email: data.email,
 					password: hashedPassword,
@@ -518,10 +523,13 @@ export class UsersService {
 		sessionKey: string,
 		isFresh: boolean
 	): Promise<TokenPayload> {
-		const accessTokenExpiresAt =
-			Date.now() + parse(ACCESS_TOKEN_EXPIRES_IN);
-		const refreshTokenExpiresAt =
-			Date.now() + parse(REFRESH_TOKEN_EXPIRES_IN);
+		const accessTokenExpiresAt = Math.floor(
+			(Date.now() + parse(ACCESS_TOKEN_EXPIRES_IN)) / 1000
+		);
+
+		const refreshTokenExpiresAt = Math.floor(
+			(Date.now() + parse(REFRESH_TOKEN_EXPIRES_IN)) / 1000
+		);
 
 		const accessToken = jwt.sign(
 			{
@@ -809,9 +817,9 @@ export class UsersService {
 			};
 		} catch (e) {
 			logger.error(e);
-            if (e instanceof HttpException) {
-                throw e;
-            }
+			if (e instanceof HttpException) {
+				throw e;
+			}
 
 			throw new HttpException(
 				500,
@@ -841,7 +849,7 @@ export class UsersService {
 			return;
 		} catch (e) {
 			logger.error(e);
-            
+
 			throw new HttpException(
 				500,
 				BUSINESS_LOGIC_ERRORS,
@@ -887,9 +895,9 @@ export class UsersService {
 			return new UserDetailResponse(storedUser);
 		} catch (e) {
 			logger.error(e);
-            if (e instanceof HttpException) {
-                throw e;
-            }
+			if (e instanceof HttpException) {
+				throw e;
+			}
 
 			throw new HttpException(
 				500,
@@ -901,6 +909,175 @@ export class UsersService {
 						message: ["cannot get user detail"],
 					},
 				]
+			);
+		}
+	}
+
+	public async updatePicture(data: UpdatePictureRequest): Promise<void> {
+		try {
+			const pictureUrl = await this.cloudStorage.uploadImage(
+				data.picture,
+				data.id
+			);
+
+			await prisma.users.update({
+				where: {
+					id: data.id,
+				},
+				data: {
+					profile: {
+						update: {
+							avatar: pictureUrl,
+						},
+					},
+				},
+			});
+
+			return;
+		} catch (e) {
+			logger.error(e);
+			if (e instanceof HttpException) {
+				throw e;
+			}
+
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"cannot update user picture"
+			);
+		}
+	}
+
+	public async updateProfile(data: UpdateProfileRequest): Promise<void> {
+		try {
+			const storedUser = await prisma.users.findUnique({
+				where: {
+					id: data.id,
+				},
+				select: {
+					alergens: {
+						select: {
+							id: true,
+						},
+					},
+				},
+			});
+
+			if (!storedUser) {
+				throw new HttpException(
+					404,
+					BUSINESS_LOGIC_ERRORS,
+					"user not found",
+					[
+						{
+							field: "uid",
+							message: ["user does not exist"],
+						},
+					]
+				);
+			}
+
+			await prisma.users.update({
+				where: {
+					id: data.id,
+				},
+				data: {
+					profile: {
+						update: {
+							name: data.name,
+						},
+					},
+					alergens: data.alergens
+						? {
+								connect: data.alergens.map((alergen) => ({
+									id: alergen,
+								})),
+								disconnect: storedUser.alergens.map(
+									(alergen) => ({
+										id: alergen.id,
+									})
+								),
+						  }
+						: undefined,
+				},
+			});
+
+			return;
+		} catch (e) {
+			logger.error(e);
+			if (e instanceof Prisma.PrismaClientKnownRequestError) {
+				if (e.code === "P2025") {
+					throw new HttpException(
+						400,
+						BUSINESS_LOGIC_ERRORS,
+						"alergens does not exist",
+						[
+							{
+								field: "alergens",
+								message: [
+									e.meta
+										? (e.meta.cause as string)
+										: "alergen does not exist",
+								],
+							},
+						]
+					);
+				}
+			}
+
+			if (e instanceof HttpException) {
+				throw e;
+			}
+
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"cannot update user profile"
+			);
+		}
+	}
+
+	public async updateAuth(data: UpdateAuthRequest): Promise<void> {
+		try {
+			let hashedPassword: string | undefined;
+			if (data.password) {
+				hashedPassword = await hash(data.password, 10);
+			}
+
+			await prisma.$transaction([
+				prisma.users.update({
+					where: {
+						id: data.id,
+					},
+					data: {
+						email: data.email,
+						password: hashedPassword,
+                        // if email is updated, deactivate user
+						isActive: data.email ? false : true ,
+					},
+				}),
+				prisma.sessions.updateMany({
+					where: {
+						userId: data.id,
+					},
+					data: {
+                        // deactive all sessions
+						isActive: false,
+					},
+				}),
+			]);
+
+			return;
+		} catch (e) {
+			logger.error(e);
+			if (e instanceof HttpException) {
+				throw e;
+			}
+
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"cannot update user authentification detail"
 			);
 		}
 	}

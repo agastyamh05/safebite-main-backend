@@ -20,7 +20,7 @@ export class FoodRoute implements Routes {
 	private initializeRoutes() {
 		this.router.get(
 			`${this.path}/:id/`,
-			AuthMiddleware([], false),
+			AuthMiddleware(),
 			this.foodController.getFood
 		);
 		this.router.get(

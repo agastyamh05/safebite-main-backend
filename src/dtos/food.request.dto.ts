@@ -9,15 +9,20 @@ import {
 import { PaginationRequest } from "./common.request.dto";
 
 export class GetFoodRequest {
+    @IsNotEmpty()
 	public id: number;
-	public userId?: string;
+	
+    public userId?: string;
 }
 
 export class GetFoodsRequest extends PaginationRequest {
+	@IsOptional()
 	public id?: number;
 
+	@IsOptional()
 	public externalId?: string;
 
+	@IsOptional()
 	public name?: string;
 }
 
@@ -56,5 +61,13 @@ export class CreateIngredientRequest {
 
 	@IsOptional()
 	@IsBoolean()
+	public isMainAlergen?: boolean;
+}
+
+export class GetIngredientsRequest extends PaginationRequest {
+	@IsOptional()
+	public name?: string;
+
+	@IsOptional()
 	public isMainAlergen?: boolean;
 }

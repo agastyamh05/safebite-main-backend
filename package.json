@@ -15,6 +15,9 @@
     "prisma": {
         "schema": "prisma/schema.prisma"
     },
+    "engines": {
+        "node": "18.15.0"
+    },
     "keywords": [],
     "author": "",
     "license": "ISC",

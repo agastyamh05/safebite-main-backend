@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { Container } from "typedi";
 import { UsersService } from "../services/users.service";
-import { SUCCESS } from "../utils/const/errorCodes";
+import { SUCCESS, VALIDATION_ERRORS } from "../utils/const/errorCodes";
+import { HttpException } from "../utils/exceptions/httpException";
 
 export class UserController {
 	private userService: UsersService = Container.get(UsersService);
@@ -186,6 +187,41 @@ export class UserController {
 				statusCode: SUCCESS,
 				message: "success retrieve user",
 				data: user,
+			});
+		} catch (error) {
+			next(error);
+		}
+	};
+
+	public updateUserPicture = async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			const file = req.file;
+			if (!file) {
+				throw new HttpException(
+					400,
+					VALIDATION_ERRORS,
+					"file is required",
+					[
+						{
+							field: "file",
+							message: ["file is required"],
+						},
+					]
+				);
+			}
+
+			await this.userService.updateUserPicture({
+				id: res.locals.user.uid as string,
+				picture: file,
+			});
+
+			res.status(200).json({
+				statusCode: SUCCESS,
+				message: "success update user picture",
 			});
 		} catch (error) {
 			next(error);

@@ -9,6 +9,7 @@ import {
 	VerifyOTPRequest,
 	SendOtpRequest,
 	PasswordResetRequest,
+	UpdateUserPictureRequest,
 } from "../dtos/user.request.dto";
 import { ErrorValue, HttpException } from "../utils/exceptions/httpException";
 import { hash, compare } from "bcrypt";
@@ -38,10 +39,14 @@ import {
 import { logger } from "../utils/logger/logger";
 import { Container } from "typedi";
 import { EmailDriver } from "../utils/driver/email";
+import { CloudStorageDriver } from "../utils/driver/storage";
 
 @Service()
 export class UsersService {
 	private readonly email: EmailDriver = Container.get(EmailDriver);
+
+	private readonly cloudStorage: CloudStorageDriver =
+		Container.get(CloudStorageDriver);
 
 	public async signup(data: SignUpRequest): Promise<SignUpResponse> {
 		const hashedPassword = await hash(data.password, 10);
@@ -809,9 +814,9 @@ export class UsersService {
 			};
 		} catch (e) {
 			logger.error(e);
-            if (e instanceof HttpException) {
-                throw e;
-            }
+			if (e instanceof HttpException) {
+				throw e;
+			}
 
 			throw new HttpException(
 				500,
@@ -841,7 +846,7 @@ export class UsersService {
 			return;
 		} catch (e) {
 			logger.error(e);
-            
+
 			throw new HttpException(
 				500,
 				BUSINESS_LOGIC_ERRORS,
@@ -887,9 +892,9 @@ export class UsersService {
 			return new UserDetailResponse(storedUser);
 		} catch (e) {
 			logger.error(e);
-            if (e instanceof HttpException) {
-                throw e;
-            }
+			if (e instanceof HttpException) {
+				throw e;
+			}
 
 			throw new HttpException(
 				500,
@@ -901,6 +906,66 @@ export class UsersService {
 						message: ["cannot get user detail"],
 					},
 				]
+			);
+		}
+	}
+
+	public async updateUserPicture(
+		data: UpdateUserPictureRequest
+	): Promise<void> {
+		try {
+			const storedUser = await prisma.users.findUnique({
+				where: {
+					id: data.id,
+				},
+                select: {
+                    id: true,
+                }
+			});
+
+			if (!storedUser) {
+				throw new HttpException(
+					404,
+					BUSINESS_LOGIC_ERRORS,
+					"user not found",
+					[
+						{
+							field: "uid",
+							message: ["user does not exist"],
+						},
+					]
+				);
+			}
+
+			const pictureUrl = await this.cloudStorage.uploadImage(
+				data.picture,
+                storedUser.id,
+			);
+
+			await prisma.users.update({
+				where: {
+					id: data.id,
+				},
+				data: {
+					profile: {
+						update: {
+							avatar: pictureUrl,
+						},
+					},
+				},
+			});
+
+			return;
+		} catch (e) {
+			logger.error(e);
+			if (e instanceof HttpException) {
+				throw e;
+			}
+
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"cannot update user picture"
 			);
 		}
 	}

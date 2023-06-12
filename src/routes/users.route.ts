@@ -11,6 +11,15 @@ import {
 import { Routes } from "../utils/interfaces/routers.interface";
 import { ValidationMiddleware } from "../utils/middlewares/validation.middleware";
 import { AuthMiddleware } from "../utils/middlewares/auth.middleware";
+import multer from "multer";
+import bodyParser from "body-parser";
+
+const multerMid = multer({
+	storage: multer.memoryStorage(),
+	limits: {
+		fileSize: 5 * 1024 * 1024,
+	},
+});
 
 export class UsersRoute implements Routes {
 	public path = "/users";
@@ -71,6 +80,14 @@ export class UsersRoute implements Routes {
 			`${this.path}/`,
 			AuthMiddleware([], true),
 			this.userController.getUserDetail
+		);
+
+		this.router.post(
+			`${this.path}/profile/upload`,
+			AuthMiddleware([], true),
+			multerMid.single("file"),
+			bodyParser.urlencoded({ extended: false }),
+			this.userController.updateUserPicture
 		);
 	}
 }

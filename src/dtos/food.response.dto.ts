@@ -153,3 +153,4 @@ export class CreateIngredientResponse {
 		this.id = ingredient.id;
 	}
 }
+ 

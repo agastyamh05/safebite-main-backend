@@ -83,3 +83,8 @@ export class RefreshTokenRequest {
 export class GetUserInfoRequest {
     public id: string;
 }
+
+export class UpdateUserPictureRequest {
+    public id: string;
+    public picture: Express.Multer.File;
+}

@@ -10,6 +10,15 @@ export const ErrorMiddleware = (
 	next: NextFunction
 ) => {
 	try {
+        if(error instanceof SyntaxError) {
+            res.status(400).json({
+                statusCode: 400,
+                message: "invalid json body",
+                errors: error.stack
+            });
+            return;
+        }
+
 		if (error instanceof HttpException) {
 			const status: number = error.status || 500;
 			const message: string = error.message || "Something went wrong";

@@ -19,7 +19,8 @@ const userService: UsersService = Container.get(UsersService);
 
 export const AuthMiddleware = (
 	rolesWhitelist: string[] = [],
-	strict = false
+	strict = false,
+	onlyFresh = false
 ): ((req: Request, res: Response, next: NextFunction) => void) => {
 	return async (req: Request, res: Response, next: NextFunction) => {
 		const token = getAuthorizationToken(req);
@@ -37,7 +38,7 @@ export const AuthMiddleware = (
 			return;
 		}
 
-        res.locals.isAnonymous = false;
+		res.locals.isAnonymous = false;
 		let decoded: AccessTokenPayload;
 		try {
 			decoded = jwt.verify(
@@ -76,6 +77,14 @@ export const AuthMiddleware = (
 			);
 		}
 
+		if (onlyFresh && !decoded.isFresh) {
+			throw new HttpException(
+				401,
+				BUSINESS_LOGIC_ERRORS,
+				"need fresh token, please login again"
+			);
+		}
+
 		try {
 			const user = await userService.validateAccessToken(decoded);
 			if (
@@ -85,15 +94,7 @@ export const AuthMiddleware = (
 				throw new HttpException(
 					403,
 					BUSINESS_LOGIC_ERRORS,
-					"invalid token",
-					[
-						{
-							field: "authorization",
-							message: [
-								"user role is not allowed to access this resource",
-							],
-						},
-					]
+					"user role is not allowed to access this resource"
 				);
 			}
 

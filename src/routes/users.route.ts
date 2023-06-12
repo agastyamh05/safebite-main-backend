@@ -73,12 +73,21 @@ export class UsersRoute implements Routes {
 			AuthMiddleware([], true),
 			this.userController.getUserDetail
 		);
-
 		this.router.post(
 			`${this.path}/profile/upload`,
 			AuthMiddleware([], true),
 			multerMiddleware.single("file"),
 			this.userController.updateUserPicture
+		);
+		this.router.patch(
+			`${this.path}/profile`,
+			AuthMiddleware([], true),
+			this.userController.updateProfile
+		);
+		this.router.patch(
+			`${this.path}/`,
+			AuthMiddleware([], true, true),
+			this.userController.updateAuthDetail
 		);
 	}
 }

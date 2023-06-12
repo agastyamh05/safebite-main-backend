@@ -9,7 +9,9 @@ import {
 	VerifyOTPRequest,
 	SendOtpRequest,
 	PasswordResetRequest,
-	UpdateUserPictureRequest,
+	UpdateUserPictureRequest as UpdatePictureRequest,
+	UpdateProfileRequest,
+	UpdateAuthRequest,
 } from "../dtos/user.request.dto";
 import { ErrorValue, HttpException } from "../utils/exceptions/httpException";
 import { hash, compare } from "bcrypt";
@@ -49,11 +51,9 @@ export class UsersService {
 		Container.get(CloudStorageDriver);
 
 	public async signup(data: SignUpRequest): Promise<SignUpResponse> {
-		const hashedPassword = await hash(data.password, 10);
-		let createdUser: users;
-
 		try {
-			createdUser = await prisma.users.create({
+			const hashedPassword = await hash(data.password, 10);
+			const createdUser = await prisma.users.create({
 				data: {
 					email: data.email,
 					password: hashedPassword,
@@ -910,36 +910,11 @@ export class UsersService {
 		}
 	}
 
-	public async updateUserPicture(
-		data: UpdateUserPictureRequest
-	): Promise<void> {
+	public async updatePicture(data: UpdatePictureRequest): Promise<void> {
 		try {
-			const storedUser = await prisma.users.findUnique({
-				where: {
-					id: data.id,
-				},
-                select: {
-                    id: true,
-                }
-			});
-
-			if (!storedUser) {
-				throw new HttpException(
-					404,
-					BUSINESS_LOGIC_ERRORS,
-					"user not found",
-					[
-						{
-							field: "uid",
-							message: ["user does not exist"],
-						},
-					]
-				);
-			}
-
 			const pictureUrl = await this.cloudStorage.uploadImage(
 				data.picture,
-                storedUser.id,
+				data.id
 			);
 
 			await prisma.users.update({
@@ -966,6 +941,107 @@ export class UsersService {
 				500,
 				BUSINESS_LOGIC_ERRORS,
 				"cannot update user picture"
+			);
+		}
+	}
+
+	public async updateProfile(data: UpdateProfileRequest): Promise<void> {
+		try {
+			const storedUser = await prisma.users.findUnique({
+				where: {
+					id: data.id,
+				},
+				select: {
+					alergens: {
+						select: {
+							id: true,
+						},
+					},
+				},
+			});
+
+			if (!storedUser) {
+				throw new HttpException(
+					404,
+					BUSINESS_LOGIC_ERRORS,
+					"user not found",
+					[
+						{
+							field: "uid",
+							message: ["user does not exist"],
+						},
+					]
+				);
+			}
+
+			await prisma.users.update({
+				where: {
+					id: data.id,
+				},
+				data: {
+					profile: {
+						update: {
+							name: data.name,
+						},
+					},
+					alergens: data.alergens
+						? {
+								connect: data.alergens.map((alergen) => ({
+									id: alergen,
+								})),
+								disconnect: storedUser.alergens.map(
+									(alergen) => ({
+										id: alergen.id,
+									})
+								),
+						  }
+						: undefined,
+				},
+			});
+
+			return;
+		} catch (e) {
+			logger.error(e);
+			if (e instanceof HttpException) {
+				throw e;
+			}
+
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"cannot update user profile"
+			);
+		}
+	}
+
+	public async updateAuth(data: UpdateAuthRequest): Promise<void> {
+		try {
+			let hashedPassword = undefined;
+			if (data.password) {
+				hashedPassword = await hash(data.password, 10);
+			}
+
+			await prisma.users.update({
+				where: {
+					id: data.id,
+				},
+				data: {
+					email: data.email,
+					password: hashedPassword,
+				},
+			});
+
+			return;
+		} catch (e) {
+			logger.error(e);
+			if (e instanceof HttpException) {
+				throw e;
+			}
+
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"cannot update user authentification detail"
 			);
 		}
 	}

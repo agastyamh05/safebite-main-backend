@@ -4,10 +4,12 @@ import {
 	IsNotEmpty,
 	MinLength,
 	IsIP,
-    IsNumber
+    IsNumber,
+    IsOptional
 } from "class-validator";
 
 export class SignUpRequest {
+    @IsString()
 	@IsEmail()
 	public email: string;
 
@@ -87,4 +89,32 @@ export class GetUserInfoRequest {
 export class UpdateUserPictureRequest {
     public id: string;
     public picture: Express.Multer.File;
+}
+
+export class UpdateProfileRequest {
+    public id: string;
+
+    @IsOptional()
+    @IsString()
+    @IsNotEmpty()
+    public name: string;
+    
+    @IsOptional()
+    @IsNumber({}, { each: true})
+    public alergens: number[];
+}
+
+export class UpdateAuthRequest {
+    public id: string;
+
+    @IsOptional()
+    @IsString()
+    @IsNotEmpty()
+    public email: string;
+
+    @IsOptional()
+    @IsString()
+    @IsNotEmpty()
+    @MinLength(8)
+    public password: string;
 }

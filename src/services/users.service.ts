@@ -1039,7 +1039,7 @@ export class UsersService {
 
 	public async updateAuth(data: UpdateAuthRequest): Promise<void> {
 		try {
-			let hashedPassword = undefined;
+			let hashedPassword: string | undefined;
 			if (data.password) {
 				hashedPassword = await hash(data.password, 10);
 			}

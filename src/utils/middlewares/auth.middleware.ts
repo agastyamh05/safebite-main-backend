@@ -28,7 +28,7 @@ export const AuthMiddleware = (
 			if (!token && strict) {
 				throw new HttpException(
 					401,
-					BUSINESS_LOGIC_ERRORS,
+					VALIDATION_ERRORS,
 					"token is required"
 				);
 			}
@@ -49,7 +49,7 @@ export const AuthMiddleware = (
 				if (decoded.category !== "access") {
 					throw new HttpException(
 						401,
-						BUSINESS_LOGIC_ERRORS,
+						VALIDATION_ERRORS,
 						"invalid token",
 						[
 							{
@@ -82,8 +82,13 @@ export const AuthMiddleware = (
 
 				res.locals.user = user;
 				res.locals.token = decoded;
+
 				next();
 			} catch (error) {
+                if (error instanceof HttpException) {
+                    throw error;
+                }
+
 				if (error instanceof TokenExpiredError) {
 					throw new HttpException(
 						401,

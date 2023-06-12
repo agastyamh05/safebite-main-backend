@@ -37,7 +37,7 @@ Container.set(EMAIL_PASSWORD, process.env.EMAIL_PASSWORD );
 const GOOGLE_CLOUD_PROJECT_ID = new Token<string>;
 Container.set(GOOGLE_CLOUD_PROJECT_ID, process.env.GOOGLE_CLOUD_PROJECT_ID);
 
-const GOOGLE_CLOUD_KEY_FILE = new Token<string>;
+const GOOGLE_CLOUD_KEY_FILE = new Token<string>("");
 Container.set(GOOGLE_CLOUD_KEY_FILE, process.env.GOOGLE_CLOUD_KEY_FILE);
 
 const STORAGE_BUCKET = new Token<string>;

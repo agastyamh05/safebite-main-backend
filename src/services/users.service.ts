@@ -1002,6 +1002,26 @@ export class UsersService {
 			return;
 		} catch (e) {
 			logger.error(e);
+			if (e instanceof Prisma.PrismaClientKnownRequestError) {
+				if (e.code === "P2025") {
+					throw new HttpException(
+						400,
+						BUSINESS_LOGIC_ERRORS,
+						"alergens does not exist",
+						[
+							{
+								field: "alergens",
+								message: [
+									e.meta
+										? (e.meta.cause as string)
+										: "alergen does not exist",
+								],
+							},
+						]
+					);
+				}
+			}
+
 			if (e instanceof HttpException) {
 				throw e;
 			}

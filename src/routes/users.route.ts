@@ -11,10 +11,7 @@ import {
 import { Routes } from "../utils/interfaces/routers.interface";
 import { ValidationMiddleware } from "../utils/middlewares/validation.middleware";
 import { AuthMiddleware } from "../utils/middlewares/auth.middleware";
-import bodyParser from "body-parser";
 import { multerMiddleware } from "../utils/middlewares/multipart.middleware";
-
-
 
 export class UsersRoute implements Routes {
 	public path = "/users";
@@ -81,7 +78,6 @@ export class UsersRoute implements Routes {
 			`${this.path}/profile/upload`,
 			AuthMiddleware([], true),
 			multerMiddleware.single("file"),
-			bodyParser.urlencoded({ extended: false }),
 			this.userController.updateUserPicture
 		);
 	}

@@ -35,8 +35,10 @@ export class FoodController {
 			const storedFoods = await this.foodService.getFoods({
 				limit: req.query.limit ? +req.query.limit : 10,
 				page: req.query.page ? +req.query.page : 1,
-				id: req.query.id? +req.query.id : undefined,
-				externalId: req.query.externalId ? req.query.externalId as string : undefined,
+				id: req.query.id ? +req.query.id : undefined,
+				externalId: req.query.externalId
+					? (req.query.externalId as string)
+					: undefined,
 				name: req.query.name as string,
 			});
 			res.status(200).json({
@@ -79,6 +81,30 @@ export class FoodController {
 				statusCode: SUCCESS,
 				message: "success creating ingredient",
 				data: storedIngredient,
+			});
+		} catch (error) {
+			next(error);
+		}
+	};
+
+	public getIngredients = async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			const storedIngredients = await this.foodService.getIngredients({
+				limit: req.query.limit ? +req.query.limit : 10,
+				page: req.query.page ? +req.query.page : 1,
+				isMainAlergen: req.query.mainAlergenOnly
+					? req.query.isMainAlergen === "true"
+					: undefined,
+				name: req.query.name as string,
+			});
+			res.status(200).json({
+				statusCode: SUCCESS,
+				message: "success retrieving ingredients",
+				data: storedIngredients,
 			});
 		} catch (error) {
 			next(error);

@@ -153,4 +153,31 @@ export class CreateIngredientResponse {
 		this.id = ingredient.id;
 	}
 }
- 
+
+export class GetIngredientsResponse {
+	public ingredients: IngredientsResponse[];
+
+	public meta: {
+		page: number;
+		limit: number;
+		total: number;
+	};
+
+	constructor(
+		ingredients: (ingredients & {
+			_count: {
+				allergicUsers: number;
+			};
+		})[],
+		meta: {
+			page: number;
+			limit: number;
+			total: number;
+		}
+	) {
+		this.ingredients = ingredients.map((ingredient) => {
+			return new IngredientsResponse(ingredient);
+		});
+		this.meta = meta;
+	}
+}

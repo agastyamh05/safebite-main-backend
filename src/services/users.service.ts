@@ -1044,15 +1044,28 @@ export class UsersService {
 				hashedPassword = await hash(data.password, 10);
 			}
 
-			await prisma.users.update({
-				where: {
-					id: data.id,
-				},
-				data: {
-					email: data.email,
-					password: hashedPassword,
-				},
-			});
+			await prisma.$transaction([
+				prisma.users.update({
+					where: {
+						id: data.id,
+					},
+					data: {
+						email: data.email,
+						password: hashedPassword,
+                        // if email is updated, deactivate user
+						isActive: data.email ? false : true ,
+					},
+				}),
+				prisma.sessions.updateMany({
+					where: {
+						userId: data.id,
+					},
+					data: {
+                        // deactive all sessions
+						isActive: false,
+					},
+				}),
+			]);
 
 			return;
 		} catch (e) {

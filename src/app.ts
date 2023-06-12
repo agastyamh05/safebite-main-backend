@@ -26,9 +26,9 @@ export class App {
 		this.port = PORT || 3000;
         this.prefix = prefix; 
         
+		this.initializeErrorHandling();
 		this.initializeMiddlewares();
 		this.initializeRoutes(routes);
-		this.initializeErrorHandling();
 	}
 
 	public listen() {

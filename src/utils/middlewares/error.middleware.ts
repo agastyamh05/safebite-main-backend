@@ -39,6 +39,7 @@ export const ErrorMiddleware = (
             message: error.message,
             errors: error.stack
         });
+        return;
 	} catch (error) {
 		next(error);
 	}

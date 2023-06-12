@@ -523,10 +523,13 @@ export class UsersService {
 		sessionKey: string,
 		isFresh: boolean
 	): Promise<TokenPayload> {
-		const accessTokenExpiresAt =
-			Date.now() + parse(ACCESS_TOKEN_EXPIRES_IN);
-		const refreshTokenExpiresAt =
-			Date.now() + parse(REFRESH_TOKEN_EXPIRES_IN);
+		const accessTokenExpiresAt = Math.floor(
+			(Date.now() + parse(ACCESS_TOKEN_EXPIRES_IN)) / 1000
+		);
+
+		const refreshTokenExpiresAt = Math.floor(
+			(Date.now() + parse(REFRESH_TOKEN_EXPIRES_IN)) / 1000
+		);
 
 		const accessToken = jwt.sign(
 			{

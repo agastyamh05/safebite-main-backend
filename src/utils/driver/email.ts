@@ -16,7 +16,7 @@ export class EmailDriver {
 	// private readonly logger = new Logger(EmailDriver.name);
 	private readonly mailer: Mail;
     
-    @Inject(EMAIL_HOST)
+    @Inject(EMAIL_USER)
     private readonly EmailFrom: string;
 
 	constructor() {
@@ -41,7 +41,7 @@ export class EmailDriver {
 	) {
 		try {
 			await this.mailer.sendMail({
-				from: this.EmailFrom,
+				from: `SafeBite <${this.EmailFrom}>`,
 				to,
 				subject,
 				// text,

@@ -45,8 +45,15 @@ Container.set(STORAGE_BUCKET, process.env.STORAGE_BUCKET);
 
 const OTP_EXPIRES_IN = process.env.OTP_EXPIRES_IN || "15m";
 
+const MODEL_PATH = new Token<string>("");
+Container.set(MODEL_PATH, process.env.MODEL_PATH);
+
+const MODEL_NAME = new Token<string>("");
+Container.set(MODEL_NAME, process.env.MODEL_NAME);
+
 // Non env variables 
 const IMAGES_FOLDER = "images";
+
 
 export {
 	NODE_ENV,
@@ -68,5 +75,7 @@ export {
 	GOOGLE_CLOUD_PROJECT_ID,
 	GOOGLE_CLOUD_KEY_FILE,
     STORAGE_BUCKET,
-    IMAGES_FOLDER
+    IMAGES_FOLDER,
+    MODEL_PATH,
+    MODEL_NAME
 };

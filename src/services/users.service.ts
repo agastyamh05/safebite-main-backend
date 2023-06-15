@@ -45,9 +45,9 @@ import { CloudStorageDriver } from "../utils/driver/storage";
 
 @Service()
 export class UsersService {
-	private readonly email: EmailDriver = Container.get(EmailDriver);
+	private readonly emailService: EmailDriver = Container.get(EmailDriver);
 
-	private readonly cloudStorage: CloudStorageDriver =
+	private readonly cloudStorageService: CloudStorageDriver =
 		Container.get(CloudStorageDriver);
 
 	public async signup(data: SignUpRequest): Promise<SignUpResponse> {
@@ -259,7 +259,7 @@ export class UsersService {
 			html = `<h1>Password Reset</h1><p>Hi ${user.profile.name},</p><p>Please use the following code to reset your password.</p><p><b>${otp}</b></p>`;
 		}
 
-		await this.email.sendEmail(user.email, subject, html);
+		await this.emailService.sendEmail(user.email, subject, html);
 	}
 	private async getOTP(
 		email: string,
@@ -915,7 +915,7 @@ export class UsersService {
 
 	public async updatePicture(data: UpdatePictureRequest): Promise<void> {
 		try {
-			const pictureUrl = await this.cloudStorage.uploadImage(
+			const pictureUrl = await this.cloudStorageService.uploadImage(
 				data.picture,
 				data.id
 			);

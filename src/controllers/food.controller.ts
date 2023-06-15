@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { Container } from "typedi";
-import { SUCCESS } from "../utils/const/errorCodes";
+import { SUCCESS, VALIDATION_ERRORS } from "../utils/const/errorCodes";
 import { FoodService } from "../services/food.service";
+import { HttpException } from "../utils/exceptions/httpException";
 
 export class FoodController {
 	private foodService: FoodService = Container.get(FoodService);
@@ -105,6 +106,68 @@ export class FoodController {
 				statusCode: SUCCESS,
 				message: "success retrieving ingredients",
 				data: storedIngredients,
+			});
+		} catch (error) {
+			next(error);
+		}
+	};
+
+	public predictImage = async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<void> => {
+		try {
+			const file = req.file;
+			if (!file) {
+				throw new HttpException(
+					400,
+					VALIDATION_ERRORS,
+					"file is required",
+					[
+						{
+							field: "file",
+							message: ["file is required"],
+						},
+					]
+				);
+			}
+
+			// validate file type
+			const fileType = file.mimetype.split("/")[0];
+			if (fileType !== "image") {
+				throw new HttpException(
+					400,
+					VALIDATION_ERRORS,
+					"file type must be image",
+					[
+						{
+							field: "file",
+							message: ["file type must be image"],
+						},
+					]
+				);
+			}
+
+			const supportedFileTypes = ["jpg", "jpeg", "png"];
+			// validate file type from extension and buffer
+			const fileExtension = file.originalname.split(".").pop();
+			if (!fileExtension || !supportedFileTypes.includes(fileExtension)) {
+				throw new HttpException(
+					400,
+					VALIDATION_ERRORS,
+					"file type is not supported"
+				);
+			}
+
+			const predictedFood = await this.foodService.predictImage({
+				image: file.buffer,
+                userId: res.locals.user ? res.locals.user.uid : null,
+			});
+			res.status(200).json({
+				statusCode: SUCCESS,
+				message: "success predicting image",
+				data: predictedFood,
 			});
 		} catch (error) {
 			next(error);

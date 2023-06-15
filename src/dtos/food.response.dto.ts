@@ -1,4 +1,5 @@
 import { foods, ingredients } from "@prisma/client";
+import {  PredictionResponse } from "../utils/driver/predictor";
 
 export class IngredientsResponse {
 	public id: number;
@@ -179,5 +180,64 @@ export class GetIngredientsResponse {
 			return new IngredientsResponse(ingredient);
 		});
 		this.meta = meta;
+	}
+}
+
+export class PredictImageResponse {
+	public prediction: {
+		id: number;
+		name: string;
+		picture: string;
+		externalId: string | null;
+		description: string | null;
+		ingredients: IngredientsResponse[];
+		alergic: IngredientsResponse[];
+		probability: number;
+	}[];
+	public meta: {
+		modelName: string;
+		latency: number;
+		timestamp: number;
+	};
+
+	constructor(
+		prediction: PredictionResponse,
+		foods: (foods & {
+			ingredients: (ingredients & {
+				_count: {
+					allergicUsers: number;
+				};
+			})[];
+		})[],
+		alergic: number[]
+	) {
+		this.prediction = prediction.predictions.map(
+			(prediction) => {
+				const food = foods.filter((f) => f.id === prediction.index);
+				return {
+					id: food[0].id,
+					name: food[0].name,
+					picture: food[0].picture,
+					externalId: food[0].externalId,
+					description: food[0].description,
+					ingredients: food[0].ingredients.map((ingredient) => {
+						return new IngredientsResponse(ingredient);
+					}),
+					alergic: food[0].ingredients
+						.filter((ingredient) => {
+							return alergic.includes(ingredient.id);
+						})
+						.map((ingredient) => {
+							return new IngredientsResponse(ingredient);
+						}),
+					probability: prediction.probability,
+				};
+			}
+		);
+		this.meta = {
+			modelName: prediction.meta.modelName,
+			latency: prediction.meta.latency,
+			timestamp: prediction.meta.timestamp,
+		};
 	}
 }

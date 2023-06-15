@@ -12,6 +12,7 @@ import {
 	GetFoodsRequest,
 	GetIngredientsRequest,
 } from "../dtos/food.request.dto";
+import { multerMiddleware } from "../utils/middlewares/multipart.middleware";
 
 export class FoodRoute implements Routes {
 	public path = "/foods";
@@ -34,6 +35,12 @@ export class FoodRoute implements Routes {
 			QueryValidationMiddleware(GetIngredientsRequest),
 			this.foodController.getIngredients
 		);
+        this.router.post(
+            `${this.path}/predict/`,
+            AuthMiddleware(),
+            multerMiddleware.single("file"),
+            this.foodController.predictImage
+        );
 		this.router.get(
 			`${this.path}/:id/`,
 			AuthMiddleware(),

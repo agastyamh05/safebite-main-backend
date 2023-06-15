@@ -46,8 +46,6 @@ model profiles {
     createdAt DateTime  @default(now())
     updatedAt DateTime  @updatedAt
     deletedAt DateTime?
-
-    @@map("userProfiles")
 }
 
 model codes {

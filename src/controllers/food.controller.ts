@@ -98,7 +98,7 @@ export class FoodController {
 				limit: req.query.limit ? +req.query.limit : 10,
 				page: req.query.page ? +req.query.page : 1,
 				isMainAlergen: req.query.mainAlergenOnly
-					? req.query.isMainAlergen === "true"
+					? req.query.mainAlergenOnly === "true"
 					: undefined,
 				name: req.query.name as string,
 			});

@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 
-import { Service } from "typedi";
+import Container, { Service } from "typedi";
 import { BUSINESS_LOGIC_ERRORS } from "../utils/const/errorCodes";
 import prisma from "../utils/driver/prisma";
 import {
@@ -8,7 +8,8 @@ import {
 	CreateIngredientRequest,
 	GetFoodRequest,
 	GetFoodsRequest,
-    GetIngredientsRequest,
+	GetIngredientsRequest,
+	PredictImageRequest,
 } from "../dtos/food.request.dto";
 import { HttpException } from "../utils/exceptions/httpException";
 import {
@@ -18,12 +19,17 @@ import {
 	GetFoodsResponse,
 	GetIngredientsResponse,
 	IngredientsResponse,
+	PredictImageResponse,
 } from "../dtos/food.response.dto";
 import { logger } from "../utils/logger/logger";
 import { Prisma } from "@prisma/client";
+import { PredictorService } from "../utils/driver/predictor";
 
 @Service()
 export class FoodService {
+	private readonly predictorService: PredictorService =
+		Container.get(PredictorService);
+
 	public async getFood(data: GetFoodRequest): Promise<GetFoodResponse> {
 		const storedFood = await prisma.foods.findUnique({
 			where: {
@@ -109,9 +115,9 @@ export class FoodService {
 						updatedAt: true,
 						deletedAt: true,
 						ingredients: {
-                            where: {
-                                isMainAlergen: true,
-                            },
+							where: {
+								isMainAlergen: true,
+							},
 							include: {
 								_count: {
 									select: {
@@ -127,7 +133,7 @@ export class FoodService {
 				prisma.foods.count({
 					where: {
 						name: {
-                            mode: "insensitive",
+							mode: "insensitive",
 							contains: data.name,
 						},
 						id: data.id,
@@ -263,53 +269,112 @@ export class FoodService {
 		}
 	}
 
-    public async getIngredients(
-        data: GetIngredientsRequest
-    ): Promise<GetIngredientsResponse> {
-        try {
-            const [ingredients, total] = await prisma.$transaction([
-                prisma.ingredients.findMany({
+	public async getIngredients(
+		data: GetIngredientsRequest
+	): Promise<GetIngredientsResponse> {
+		try {
+			const [ingredients, total] = await prisma.$transaction([
+				prisma.ingredients.findMany({
+					where: {
+						name: {
+							mode: "insensitive",
+							contains: data.name,
+						},
+						isMainAlergen: data.isMainAlergen,
+						deletedAt: null,
+					},
+					include: {
+						_count: {
+							select: {
+								allergicUsers: true,
+							},
+						},
+					},
+					skip: (data.page - 1) * data.limit,
+					take: data.limit,
+				}),
+				prisma.ingredients.count({
+					where: {
+						name: {
+							mode: "insensitive",
+							contains: data.name,
+						},
+						isMainAlergen: data.isMainAlergen,
+						deletedAt: null,
+					},
+				}),
+			]);
+			return new GetIngredientsResponse(ingredients, {
+				page: data.page,
+				limit: data.limit,
+				total: total,
+			});
+		} catch (error) {
+			logger.error(error);
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"error getting ingredients"
+			);
+		}
+	}
+
+	public async predictImage(
+		data: PredictImageRequest
+	): Promise<PredictImageResponse> {
+		try {
+			const predictionResult = await this.predictorService.predict(
+				data.image
+			);
+
+			const foodIds = predictionResult.predictions.map(
+				(food) => food.index
+			);
+			const storedFoods = await prisma.foods.findMany({
+				where: {
+					id: {
+						in: foodIds,
+					},
+				},
+				include: {
+					ingredients: {
+						include: {
+							_count: {
+								select: {
+									allergicUsers: true,
+								},
+							},
+						},
+					},
+				},
+			});
+
+            let alergic: number[] = []
+            if (data.userId) {
+                const alergens = await prisma.users.findMany({
                     where: {
-                        name: {
-                            mode: "insensitive",
-                            contains: data.name,
-                        },
-                        isMainAlergen: data.isMainAlergen,
-                        deletedAt: null,
+                        id: data.userId,
                     },
-                    include: {
-                        _count: {
+                    select: {
+                        alergens: {
                             select: {
-                                allergicUsers: true,
+                                id: true,
                             },
                         },
                     },
-                    skip: (data.page - 1) * data.limit,
-                    take: data.limit,
-                }),
-                prisma.ingredients.count({
-                    where: {
-                        name: {
-                            mode: "insensitive",
-                            contains: data.name,
-                        },
-                        isMainAlergen: data.isMainAlergen,
-                        deletedAt: null,
-                    },
-                }),
-            ]);
-            return new GetIngredientsResponse(ingredients, {
-                page: data.page,
-                limit: data.limit,
-                total: total,
-            });
-        } catch (error) {
-            logger.error(error);
-            throw new HttpException(
-                500,
-                BUSINESS_LOGIC_ERRORS,
-                "error getting ingredients"
-            );
-        }
-    }
+                });
+
+                alergic = alergens[0].alergens.map((alergen) => alergen.id);
+            }
+
+			return new PredictImageResponse(predictionResult, storedFoods, alergic);
+		} catch (error) {
+			logger.error(error);
+			throw new HttpException(
+				500,
+				BUSINESS_LOGIC_ERRORS,
+				"error predicting image"
+			);
+		}
+	}
 }

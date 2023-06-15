@@ -71,3 +71,9 @@ export class GetIngredientsRequest extends PaginationRequest {
 	@IsOptional()
 	public isMainAlergen?: boolean;
 }
+
+export class PredictImageRequest {
+    public userId: string;
+
+    public image: Buffer;
+}

@@ -230,16 +230,16 @@ export class UserController {
 				);
 			}
 
-			const supportedFileTypes = ["jpg", "jpeg", "png"];
-			// validate file type from extension and buffer
-			const fileExtension = file.originalname.split(".").pop();
-			if (!fileExtension || !supportedFileTypes.includes(fileExtension)) {
-				throw new HttpException(
-					400,
-					VALIDATION_ERRORS,
-					"file type is not supported"
-				);
-			}
+			// const supportedFileTypes = ["jpg", "jpeg", "png"];
+			// // validate file type from extension and buffer
+			// const fileExtension = file.originalname.split(".").pop();
+			// if (!fileExtension || !supportedFileTypes.includes(fileExtension)) {
+			// 	throw new HttpException(
+			// 		400,
+			// 		VALIDATION_ERRORS,
+			// 		"file type is not supported"
+			// 	);
+			// }
 
 			await this.userService.updatePicture({
 				id: res.locals.user.uid as string,

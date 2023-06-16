@@ -149,16 +149,16 @@ export class FoodController {
 				);
 			}
 
-			const supportedFileTypes = ["jpg", "jpeg", "png"];
-			// validate file type from extension and buffer
-			const fileExtension = file.originalname.split(".").pop();
-			if (!fileExtension || !supportedFileTypes.includes(fileExtension)) {
-				throw new HttpException(
-					400,
-					VALIDATION_ERRORS,
-					"file type is not supported"
-				);
-			}
+			// const supportedFileTypes = ["jpg", "jpeg", "png"];
+			// // validate file type from extension and buffer
+			// const fileExtension = file.originalname.split(".").pop();
+			// if (!fileExtension || !supportedFileTypes.includes(fileExtension)) {
+			// 	throw new HttpException(
+			// 		400,
+			// 		VALIDATION_ERRORS,
+			// 		"file type is not supported"
+			// 	);
+			// }
 
 			const predictedFood = await this.foodService.predictImage({
 				image: file.buffer,

@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "fresh-office-418712",
+  "private_key_id": "661aa065a832d4e95603a17425e17ae2a3aca187",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCLNOHH3vzy3jYH\nwf8XAGRiadtSrxCRfFg/R5FDeuEigh7HQEXDfDboEJAWPC6xJ5ZeSvIFbs+bEG6K\n0BJTgLSviL1Tt5/byVkXGKgVWc5mPW2rYX5UQG/m2EyXMXqTa+5mdi5AF6OLk+aZ\nfdxxDo1NVvF+DuQJfj9NIEtFv06EMDU5CRjdoaZBvukt+4Pf779ieJwXPIwHffc5\nh+i39WSx0QP7S5DMDW2XgphmAhf/O4o4iWMly9I/BSQME67PmPs6YGLixb4a823H\nAbuOZROuohowGneZeUZ98UVb3csCfc/l/G5WbzWD5x/fvWWJblrzRBaE8+Oj1eDK\n/6t4nzHhAgMBAAECggEABjJw+KpbHV66DgdbWUVJsr3epyQm+ysLbKm9dEEUo6oi\nP6GDWYv+j78pAuxj8bv+7Cyu8IH52P/Ww/Q2VKROpt/R+debVLf2cNpGpUitsQx8\nBNyeuJZzxNWNN0/bEpQD9Wi+b1j+DVkks2GQfjH1JWPA9WkpSqjlnYPaBf1Zu/Wu\noEIjeZb8ZlgHjv+OBdiVc+lXv9ouqa6FrPVIKXH+DO7TJ8PPhIc1+TogqZQRNr6h\nrx9a7ZxiEv9sntTQPImeQu1tlV8VMvt3vu6umJqo2Jhdszl3PEwLEXU6zNO9lUlz\nikAfTYVo2ECyMwvNNm2paEDLrDEvOt6xNQoG/I9OSQKBgQDCV8KkFP/Wi4UgkSQl\nhoxCQnhbtq/n5nilVYsGiT66WudoOh/P7y63qYovdCAT6qZ+19dXZNZnqwvlgvZr\nPnRZ6P4Vxnx0DeKIBIJFHgEaDQMsymRVRSeoFQmK/5mKDqLBavrpr/QDqYsF566/\n1ndgfQBcJoMcsRClfNcVICLaZQKBgQC3XwlSBCCmT3sejsq7MYrcVIj9dBQ1OsIT\nJ1Y+HufY+7YMuFr64JRB+mvk0xuNSdBeAzLD77M9RHm9Cx3I0qiTDhwaaSMzfphb\nnKRFDnyuGm3OrZrkcfPfpit9SLITf16PRkGRfhlpxuudZErRjVUlBsPYHbI+JaBT\n2p6xDoijzQKBgBEwvBnRdbPfkX4I+J6NITj3MjhCl5q2qzNMtsh0OWU4h0GT6p50\n9LfwOjXqWrAIUIPlybmERObUnW/Gvs9LrfUKA/efIAEP/Vq0s2Uzuzs3rXE30dot\nDM30VmzCIS2yD7l2Ig2rr7TnOVHjZXS4nsSdKfv8uBpAm01YFppaxlp1AoGAHMyz\nVQtK6XPwPVNl6dKVIZexUEVL6zRISOPTurv14/FcnVDTETX2cwpWqcCyQhWGwU01\nSuq5tvSrPhKh4emcCkScC1XZ7nuCiFjov+PPlzSVbHF9s0VmbQjXKb0iIsfNXSlG\noQgyC5fvZ2/aBGFzLvaKCcZYOUSFksXySJKkyT0CgYBHVZ3CfGFxM59I4zyEPnMt\ncinjlWkcM1y8ss3PEb6tKuMNwONIMeKtcKc4Nyl7ALlQDKoGDwPtnfI7uGRbnysW\ndJEKSwZ8dRTJ/tMZ6ikiysgVsnuqAF88MjCg7sQigy9nFwt2t0o+LSUSnOBBmmog\nHUYRG5L75QIBQNIMj26GNQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "safebite-bucket@fresh-office-418712.iam.gserviceaccount.com",
+  "client_id": "117042592399851488224",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/safebite-bucket%40fresh-office-418712.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
